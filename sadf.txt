@@ -1,0 +1,14 @@
+public function AddNetAvatarToMap(avatar:IAvatar)
+		{
+			map.StartMask(avatar);
+		}
+		public function RemoveNetAvatarFromMap(avatar:IAvatar)
+		{
+			map.StopMask(avatar.Avatar);
+		}
+		public function Clean()
+		{
+			map.StopMaskListener();
+			map.Clean();
+			map = null;
+		}

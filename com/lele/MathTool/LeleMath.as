@@ -1,6 +1,7 @@
 package com.lele.MathTool
 {
 	import flash.concurrent.Mutex;
+	import flash.display.Sprite;
 	import flash.geom.Point;
 	/**
 	 * ...
@@ -117,6 +118,40 @@ package com.lele.MathTool
 			var r2:Number = Math.random();
 			var u:Number = Math.sqrt((-2) * Math.log(r1)) * Math.cos(2 * Math.PI * r2);
 			var z:Number = a + u * Math.sqrt(b); return (z);
+		}
+		
+		public static function ScaleWithRange(source:Sprite, rangeX:Number, rangeY:Number):Sprite
+		{
+			var scalFac:Number = 1;
+			if (source.width < rangeX && source.height < rangeY)
+			{
+				if ((rangeX - source.width) > (rangeY - source.height))
+				{
+					//on y
+					scalFac = rangeY / source.height;
+				}
+				else
+				{
+					//on x
+					scalFac = rangeX / source.width;
+				}
+			}
+			else
+			{
+				if ((source.width-rangeX)>(source.height-rangeY))
+				{
+					//on x
+					scalFac = rangeX / source.width;
+				}
+				else
+				{
+					//on y
+					scalFac = rangeY / source.height;
+				}
+			}
+			source.width = source.width * scalFac;
+			source.height = source.height * scalFac;
+			return source;
 		}
 		
 	}

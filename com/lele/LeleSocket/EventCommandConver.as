@@ -29,7 +29,7 @@ package com.lele.LeleSocket
 	//CreatAccount,pwd//创建账户
 	//BackCreatAccount,result,id//创建账户返回信息
 	//MoleLoginInfo,id//请求摩尔登录基础数据
-	//MoleBaseInfo,num,id,color,name//返回摩尔基础数据
+	//MoleBaseInfo,num,id,color,name,dress//返回摩尔基础数据
 	//CreateMole,color,name//创建摩尔
 	//CreateMoleBack,result//0/1
 	//Throw,item,x,y,action,dir,blood//投掷
@@ -41,6 +41,8 @@ package com.lele.LeleSocket
 	//MFriend,id//请求加好友(传出)
 	//XMFriend,id,name//请求加好友(外部传入)
 	//NoteY,title,content//单向Note;
+	//ChangeDress,HENHSC//改变着装
+	//NChangeDress,id,dress//网络玩家变装
 	public class EventCommandConver 
 	{
 		
@@ -67,6 +69,7 @@ package com.lele.LeleSocket
 					resultEvt.ADDNETPLAYER_name = command.GetValueByName("name");
 					resultEvt.ADDNETPLAYER_spownPoint = new Point((int)(command.GetValueByName("x")), (int)(command.GetValueByName("y")));
 					resultEvt.ADDNETPLAYER_map = command.GetValueByName("map");
+					resultEvt.ADDNETPLAYER_dress = command.GetValueByName("dress");
 					break;
 				case "LoginResult":
 					resultEvt = new NetData_Net_ManagerEvent(NetData_Net_ManagerEvent.LOGINRESULT);
@@ -103,6 +106,7 @@ package com.lele.LeleSocket
 					if (resultEvt.MOLEBASEINFO_num == 0) { break; }
 					resultEvt.MOLEBASEINFO_color = command.GetValueByName("color");
 					resultEvt.MOLEBASEINFO_name = command.GetValueByName("name");
+					resultEvt.MOLEBASEINFO_dress = command.GetValueByName("dress");
 					break;
 				case "CreateMoleBack":
 					resultEvt = new NetData_Net_ManagerEvent(NetData_Net_ManagerEvent.CREATEMOLEBACK);
@@ -152,6 +156,11 @@ package com.lele.LeleSocket
 					resultEvt = new NetData_Net_ManagerEvent(NetData_Net_ManagerEvent.NOTEY);
 					resultEvt.NOTEY_title = command.GetValueByName("title");
 					resultEvt.NOTEY_content = command.GetValueByName("content");
+					break;
+				case "NChangeDress":
+					resultEvt = new NetData_Net_ManagerEvent(NetData_Net_ManagerEvent.NCHANGEDRESS);
+					resultEvt.NCHANGEDRESS_HENHSC = command.GetValueByName("dress");
+					resultEvt.NCHANGEDRESS_id = command.GetValueByName("id");
 					break;
 			}
 			return resultEvt;
@@ -232,6 +241,11 @@ package com.lele.LeleSocket
 					(evt as Net_Game_ManagerEvent).CALLNETTHROWITEM_GAME_position.x + ";y;" + (evt as Net_Game_ManagerEvent).CALLNETTHROWITEM_GAME_position.y
 					+";action;" + (evt as Net_Game_ManagerEvent).CALLNETTHROWITEM_GAME_action + ";dir;" + (evt as Net_Game_ManagerEvent).CALLNETTHROWITEM_GAME_dir +
 					";blood;" + (evt as Net_Game_ManagerEvent).CALLNETTHROWITEM_GAME_blood;
+					break;
+				}
+				case Net_Game_ManagerEvent.CHANGEDRESS_GAME:
+				{
+					result += "ChangeDress;1;HENHSC;" + (evt as Net_Game_ManagerEvent).CHANGEDRESS_GAME_HENHSC;
 					break;
 				}
 				case AppData_App_ManagerEvent.FRIENDCHATSEND:

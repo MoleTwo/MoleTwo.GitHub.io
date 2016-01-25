@@ -273,6 +273,12 @@ package com.lele.Manager
 						GameManager.NetManagerFuncer.OnReceive(evt);
 						return;
 					}
+					case AppData_App_ManagerEvent.ONDRESSCHANGE:
+					{
+						var dressChange:App_Game_ManagerEvent = new App_Game_ManagerEvent(App_Game_ManagerEvent.ONDRESSCHANGE);
+						_report.OnReport(dressChange);
+						return;
+					}
 					
 				}
 				

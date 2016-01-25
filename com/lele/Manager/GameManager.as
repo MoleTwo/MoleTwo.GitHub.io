@@ -2,6 +2,7 @@
 {
 	import adobe.utils.CustomActions;
 	import com.lele.Container.AppContainer;
+	import com.lele.Controller.Avatar.Events.NetWorkController_NetPlayerUnit_Event;
 	import com.lele.Manager.Interface.IApplicationManager;
 	import com.lele.Manager.Interface.IApplyAppContainer;
 	import com.lele.Controller.Avatar.ActionSuggest;
@@ -51,7 +52,7 @@
 		private var _interactContainer:InteractContainer;
 		private var _debugContainer:Sprite;
 		//网络配置
-		private var _ip:String="127.0.0.1"; //"115.159.27.206"
+		private var _ip:String="192.168.1.7"; //"115.159.27.206"
 		private var _port:int = 51888;
 		//debug窗口
 		private var _textField:TextField;
@@ -64,8 +65,9 @@
 			GloableData.CurrentMap = "Map001";
 			GloableData.CurrentWeather = "Sun";
 			GloableData.CurrentWeatherStrength = 0;
-			GloableData.Version = "0.4.2";
+			GloableData.Version = "0.5";
 			GloableData.MasterMode = false;
+			GloableData.VipNetEnable = true;
 			if (GloableData.Environment == "net")
 			{
 				_ip = "121.42.202.168";
@@ -336,6 +338,18 @@
 						_appManager.OnReceive(dataBack);
 						return;
 					}
+					case App_Game_ManagerEvent.ONDRESSCHANGE:
+					{//更新装扮
+						var netChange:Net_Game_ManagerEvent = new Net_Game_ManagerEvent(Net_Game_ManagerEvent.CHANGEDRESS_GAME);
+						netChange.CHANGEDRESS_GAME_HENHSC = GloableData.MoleDress_Hat + "|" + GloableData.MoleDress_Eyes + "|" + GloableData.MoleDress_Necklace+"|" + GloableData.MoleDress_Hand + "|" + GloableData.MoleDress_Shoes + "|" + GloableData.MoleDress_Cloth + "|";
+						_netManager.OnReceive(netChange);
+						//更新本地的
+						_playerManager.RefreshPlayerDress();
+						var toPlayer:Player_Game_ManagerEvent = new Player_Game_ManagerEvent(Player_Game_ManagerEvent.CALLDOACTION_GAME);
+						toPlayer.CALLDOACTION_GAME_actionName = "cce";
+						_playerManager.OnReceive(toPlayer);
+						return;
+					}
 					case Player_Game_ManagerEvent.LOADSTARTAPP:
 					{
 						_appManager.LoadStartApp(AppDataLink.GetUrlByName((evt as Player_Game_ManagerEvent).LOADSTARTAPP_name),
@@ -407,6 +421,7 @@
 						toPlayer.ADDNETPLAYER_GAME_ID = (evt as Net_Game_ManagerEvent)._playerID;
 						toPlayer.ADDNETPLAYER_GAME_spownPoint = (evt as Net_Game_ManagerEvent).ADDNETPLAYER_spownPoint;
 						toPlayer.ADDNETPLAYER_GAME_map = (evt as Net_Game_ManagerEvent).ADDNETPLAYER_map;
+						toPlayer.ADDNETPLAYER_GAME_dress = (evt as Net_Game_ManagerEvent).ADDNETPLAYER_dress;
 						_playerManager.OnReceive(toPlayer);
 						return;
 					}
@@ -496,6 +511,13 @@
 						//此时为正常登录
 						GloableData.MoleColor = (evt as Net_Game_ManagerEvent).MOLEBASEINFO_color;
 						GloableData.MoleName = (evt as Net_Game_ManagerEvent).MOLEBASEINFO_name;
+						var dressStr:Array = (evt as Net_Game_ManagerEvent).MOLEBASEINFO_dress.split("|");
+						GloableData.MoleDress_Hat = dressStr[0];
+						GloableData.MoleDress_Eyes = dressStr[1];
+						GloableData.MoleDress_Necklace = dressStr[2];
+						GloableData.MoleDress_Hand = dressStr[3];
+						GloableData.MoleDress_Shoes = dressStr[4];
+						GloableData.MoleDress_Cloth = dressStr[5];
 						_uiManager.LoadUI("UI/LoadingBar.swf", _uiHighContainer);//先加载进度条，然后加载其余ui和玩家，再加载地图，最后加载音频
 						return;
 					}
@@ -532,6 +554,14 @@
 						back.ARGTOAPP_GAME_args = temps;
 						_appManager.OnReceive(back);*/
 						_appManager.ShowDialog("emoy", "sad", "创建摩尔失败，请稍后再试", null);
+						return;
+					}
+					case Net_Game_ManagerEvent.NCHANGEDRESS:
+					{
+						var nc:Player_Game_ManagerEvent = new Player_Game_ManagerEvent(Player_Game_ManagerEvent.NCHANGEDRESS_GAME);
+						nc.NCHANGEDRESS_GAME_HENHSC = (evt as Net_Game_ManagerEvent).NCHANGEDRESS_HENHSC;
+						nc.NCHANGEDRESS_GAME_id = (evt as Net_Game_ManagerEvent).NCHANGEDRESS_id;
+						_playerManager.OnReceive(nc);
 						return;
 					}
 					case UI_Game_ManagerEvent.PASSDIALOGSTYLE:

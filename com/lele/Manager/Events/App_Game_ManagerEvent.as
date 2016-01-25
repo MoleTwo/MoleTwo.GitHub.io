@@ -48,6 +48,8 @@ package com.lele.Manager.Events
 		public var ONTHROWITEM_actionDir:String;
 		public var ONTHROWITEM_blood:Number;
 		
+		public static const ONDRESSCHANGE = "着装改变";
+		
 		public static const NCHATLISTDATAS = "请求附近玩家数据";//某地图内(好友列表里的推荐)
 		
 		public static const NCHATLISTDATAS_GAME = "返回附近玩家数据";

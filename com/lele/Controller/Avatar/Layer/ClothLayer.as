@@ -14,7 +14,6 @@ package com.lele.Controller.Avatar.Layer
 	{
 		//内部隐含层次
 		private var _hat:Sprite;
-		private var _hair:Sprite;
 		private var _eyes:Sprite;
 		private var _necklace:Sprite;
 		private var _hand:Sprite;
@@ -22,7 +21,6 @@ package com.lele.Controller.Avatar.Layer
 		private var _cloth:Sprite;
 		
 		private var A_hat:IClothAnimation;
-		private var A_hair:IClothAnimation;
 		private var A_eyes:IClothAnimation;
 		private var A_necklace:IClothAnimation;
 		private var A_hand:IClothAnimation;
@@ -34,7 +32,6 @@ package com.lele.Controller.Avatar.Layer
 		public function ClothLayer() 
 		{
 			_hat = new Sprite();
-			_hair = new Sprite();
 			_eyes = new Sprite();
 			_necklace = new Sprite();
 			_hand = new Sprite();
@@ -47,9 +44,7 @@ package com.lele.Controller.Avatar.Layer
 			this.addChild(_hand);
 			this.addChild(_necklace);
 			this.addChild(_eyes);
-			this.addChild(_hair);
 			this.addChild(_hat);
-			
 		}
 		
 		public function OnClothLoaded(obj:IClothAnimation)
@@ -58,9 +53,6 @@ package com.lele.Controller.Avatar.Layer
 			{
 				case "Hat":
 					Hat = obj;
-					break;
-				case "Hair":
-					Hair = obj;
 					break;
 				case "Eyes":
 					Eyes = obj;
@@ -80,13 +72,38 @@ package com.lele.Controller.Avatar.Layer
 			}
 		}
 		
+		public function InitAllDress()
+		{
+			//停止所有动画
+			StopAct();
+			
+			while (this.numChildren > 0) { this.removeChildAt(0); }
+			
+			_hat = new Sprite();
+			_eyes = new Sprite();
+			_necklace = new Sprite();
+			_hand = new Sprite();
+			_shoes = new Sprite();
+			_cloth = new Sprite();
+			
+			//Add the layercontainer
+			this.addChild(_cloth);
+			this.addChild(_shoes);
+			this.addChild(_hand);
+			this.addChild(_necklace);
+			this.addChild(_eyes);
+			this.addChild(_hat);
+			
+			A_hat = null;
+			A_eyes = null;
+			A_necklace = null;
+			A_hand = null;
+			A_shoes = null;
+			A_cloth = null;
+		}
 		public function set Hat(hat:IClothAnimation)
 		{
 			A_hat = hat;
-		}
-		public function set Hair(hair:IClothAnimation)
-		{
-			A_hair = hair;
 		}
 		public function set Eyes(eyes:IClothAnimation)
 		{
@@ -145,7 +162,6 @@ package com.lele.Controller.Avatar.Layer
 					SideBack();
 					if (A_cloth != null) { SetPart(_cloth, A_cloth.FF); }
 					if (A_eyes != null) { SetPart(_eyes, A_eyes.FF); }
-					if (A_hair != null) { SetPart(_hair, A_hair.FF); }
 					if (A_hand != null) { SetPart(_hand, A_hand.FF); }
 					if (A_hat != null) { SetPart(_hat, A_hat.FF); }
 					if (A_necklace != null) { SetPart(_necklace, A_necklace.FF); }
@@ -155,7 +171,6 @@ package com.lele.Controller.Avatar.Layer
 					SideBack();
 					if (A_cloth != null) { SetPart(_cloth, A_cloth.FS); }
 					if (A_eyes != null) { SetPart(_eyes, A_eyes.FS); }
-					if (A_hair != null) { SetPart(_hair, A_hair.FS); }
 					if (A_hand != null) { SetPart(_hand, A_hand.FS); }
 					if (A_hat != null) { SetPart(_hat, A_hat.FS); }
 					if (A_necklace != null) { SetPart(_necklace, A_necklace.FS); }
@@ -165,7 +180,6 @@ package com.lele.Controller.Avatar.Layer
 					SideBack();
 					if (A_cloth != null) { SetPart(_cloth, A_cloth.SS); }
 					if (A_eyes != null) { SetPart(_eyes, A_eyes.SS); }
-					if (A_hair != null) { SetPart(_hair, A_hair.SS); }
 					if (A_hand != null) { SetPart(_hand, A_hand.SS); }
 					if (A_hat != null) { SetPart(_hat, A_hat.SS); }
 					if (A_necklace != null) { SetPart(_necklace, A_necklace.SS); }
@@ -175,7 +189,6 @@ package com.lele.Controller.Avatar.Layer
 					SideBack();
 					if (A_cloth != null) { SetPart(_cloth, A_cloth.BS); }
 					if (A_eyes != null) { SetPart(_eyes, A_eyes.BS); }
-					if (A_hair != null) { SetPart(_hair, A_hair.BS); }
 					if (A_hand != null) { SetPart(_hand, A_hand.BS); }
 					if (A_hat != null) { SetPart(_hat, A_hat.BS); }
 					if (A_necklace != null) { SetPart(_necklace, A_necklace.BS); }
@@ -185,7 +198,6 @@ package com.lele.Controller.Avatar.Layer
 					SideBack();
 					if (A_cloth != null) { SetPart(_cloth, A_cloth.BB); }
 					if (A_eyes != null) { SetPart(_eyes, A_eyes.BB); }
-					if (A_hair != null) { SetPart(_hair, A_hair.BB); }
 					if (A_hand != null) { SetPart(_hand, A_hand.BB); }
 					if (A_hat != null) { SetPart(_hat, A_hat.BB); }
 					if (A_necklace != null) { SetPart(_necklace, A_necklace.BB); }
@@ -195,7 +207,6 @@ package com.lele.Controller.Avatar.Layer
 					SideDown();
 					if (A_cloth != null) { SetPart(_cloth, A_cloth.BS); }
 					if (A_eyes != null) { SetPart(_eyes, A_eyes.BS); }
-					if (A_hair != null) { SetPart(_hair, A_hair.BS); }
 					if (A_hand != null) { SetPart(_hand, A_hand.BS); }
 					if (A_hat != null) { SetPart(_hat, A_hat.BS); }
 					if (A_necklace != null) { SetPart(_necklace, A_necklace.BS); }
@@ -205,7 +216,6 @@ package com.lele.Controller.Avatar.Layer
 					SideDown();
 					if (A_cloth != null) { SetPart(_cloth, A_cloth.SS); }
 					if (A_eyes != null) { SetPart(_eyes, A_eyes.SS); }
-					if (A_hair != null) { SetPart(_hair, A_hair.SS); }
 					if (A_hand != null) { SetPart(_hand, A_hand.SS); }
 					if (A_hat != null) { SetPart(_hat, A_hat.SS); }
 					if (A_necklace != null) { SetPart(_necklace, A_necklace.SS); }
@@ -215,7 +225,6 @@ package com.lele.Controller.Avatar.Layer
 					SideDown();
 					if (A_cloth != null) { SetPart(_cloth, A_cloth.FS); }
 					if (A_eyes != null) { SetPart(_eyes, A_eyes.FS); }
-					if (A_hair != null) { SetPart(_hair, A_hair.FS); }
 					if (A_hand != null) { SetPart(_hand, A_hand.FS); }
 					if (A_hat != null) { SetPart(_hat, A_hat.FS); }
 					if (A_necklace != null) { SetPart(_necklace, A_necklace.FS); }

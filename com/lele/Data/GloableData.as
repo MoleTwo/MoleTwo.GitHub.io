@@ -18,22 +18,15 @@ package com.lele.Data
 		public static var MoleColor:String;
 		public static var MoleName:String;
 		public static var FriendData:Array;
+		public static var VipNetEnable:Boolean;
 		
 		//放这里是出于效率而不是结构考虑
 		public static var MoleDress_Hat:String;
-		public static var MoleDress_Hair:String;
 		public static var MoleDress_Eyes:String;
 		public static var MoleDress_Necklace:String;
 		public static var MoleDress_Hand:String;
 		public static var MoleDress_Shoes:String;
 		public static var MoleDress_Cloth:String;
-		
-		
-		
-		
-		
-		
-		
 		
 		
 		

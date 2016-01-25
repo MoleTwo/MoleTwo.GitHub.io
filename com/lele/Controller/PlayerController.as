@@ -388,6 +388,12 @@ package com.lele.Controller
 					_rotateAround = true;
 					return;
 				}
+				case Avatar_PlayerController_Event.BECLICKED:
+				{
+					var evttt:PLC_Player_ManagerEvent = new PLC_Player_ManagerEvent(PLC_Player_ManagerEvent.LOCALPLAYERBECLICK);
+					_repoter.OnReport(evttt);
+					//trace("PlayerBeClick");
+				}
 			}
 		}
 		

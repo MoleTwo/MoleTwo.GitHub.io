@@ -78,9 +78,8 @@ package com.lele.LeleSocket
 					_buffer = _buffer.slice(_buffer.indexOf("<"), _buffer.length);
 				}
 				var commandString:String = _buffer.slice(0, _buffer.indexOf(">") + 1);
-				trace(commandString);
 				_buffer = _buffer.slice(_buffer.indexOf(">") + 1, _buffer.length);
-				_onCommand(BuildCommand(commandString));
+				_onCommand(BuildCommand(commandString),commandString.search(";port;")!=-1);
 			}
 		}
 		private function BuildCommand(command:String):Command

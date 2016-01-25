@@ -70,6 +70,11 @@ package com.lele.Controller.Avatar
 			(_effect.left as MovieClip).stop();
 		}
 		
+		public function InitAllDress()
+		{
+			_clothLayer.InitAllDress();
+		}
+		
 		public function OnClothLoaded(cloth:IClothAnimation)
 		{
 			_clothLayer.OnClothLoaded(cloth);
@@ -561,6 +566,45 @@ package com.lele.Controller.Avatar
 					});
 					return;
 				}
+				case "change_cloth_start":
+				{
+					var stopRotEvt:Avatar_PlayerController_Event = new Avatar_PlayerController_Event(Avatar_PlayerController_Event.CALLOFFROTATEAROUND);
+					_repoter.OnReport(stopRotEvt);
+					PlayAct("change_cloth_start",1251, 1, function() {
+						if(callBack!=null)
+						callBack();
+						DoAction("stand", dir);
+						var startRotEvt:Avatar_PlayerController_Event = new Avatar_PlayerController_Event(Avatar_PlayerController_Event.CALLONROTATEAROUND);
+						_repoter.OnReport(startRotEvt);
+					},true);
+					return;
+				}
+				case "change_cloth_end":
+				{
+					var stopRotEvt:Avatar_PlayerController_Event = new Avatar_PlayerController_Event(Avatar_PlayerController_Event.CALLOFFROTATEAROUND);
+					_repoter.OnReport(stopRotEvt);
+					PlayAct("change_cloth_end",1272, 1, function() {
+						if(callBack!=null)
+						callBack();
+						DoAction("stand", dir);
+						var startRotEvt:Avatar_PlayerController_Event = new Avatar_PlayerController_Event(Avatar_PlayerController_Event.CALLONROTATEAROUND);
+						_repoter.OnReport(startRotEvt);
+					},true);
+					return;
+				}
+				case "cce":
+				{
+					var stopRotEvt:Avatar_PlayerController_Event = new Avatar_PlayerController_Event(Avatar_PlayerController_Event.CALLOFFROTATEAROUND);
+					_repoter.OnReport(stopRotEvt);
+					PlayAct("change_cloth_start",1272, 1, function() {
+						if(callBack!=null)
+						callBack();
+						DoAction("stand", dir);
+						var startRotEvt:Avatar_PlayerController_Event = new Avatar_PlayerController_Event(Avatar_PlayerController_Event.CALLONROTATEAROUND);
+						_repoter.OnReport(startRotEvt);
+					},true);
+					return;
+				}
 			}
 		}
 		
@@ -837,7 +881,7 @@ package com.lele.Controller.Avatar
 		{
 			var beClickEvt:Avatar_PlayerController_Event = new Avatar_PlayerController_Event(Avatar_PlayerController_Event.BECLICKED);
 			_repoter.OnReport(beClickEvt);
-			trace("MoleClick");
+			//trace("MoleClick");
 			return true;
 		}
 		public function get _x():Number

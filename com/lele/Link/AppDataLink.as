@@ -15,6 +15,7 @@
 		private static const FriendsApp = "App/FriendsApp.swf";
 		private static const LittleNoteApp = "App/LittleNoteApp.swf";
 		private static const InfoPanelApp = "App/InfoPanelApp.swf";
+		private static const UserInfoPanelApp = "App/UserInfoPanelApp.swf";
 		
 		public static function GetUrlByName(name:String):String
 		{
@@ -38,6 +39,8 @@
 					return LittleNoteApp;
 				case "InfoPanelApp":
 					return InfoPanelApp;
+				case "UserInfoPanelApp":
+					return UserInfoPanelApp;
 			}
 			return null;
 		}

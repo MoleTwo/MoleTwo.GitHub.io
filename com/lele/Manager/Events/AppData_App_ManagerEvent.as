@@ -76,6 +76,8 @@ package com.lele.Manager.Events
 		public static const MAKEFRIEND = "加好友";
 		public var MAKEFRIEND_id:String;
 		
+		public static const ONDRESSCHANGE = "当着装改变";
+		
 		public function AppData_App_ManagerEvent(evtType:String) 
 		{
 			super(evtType);

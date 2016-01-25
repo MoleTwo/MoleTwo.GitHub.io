@@ -18,6 +18,7 @@
 		function set Repoter(repoter:IReport);
 		function SetComDialog(dialog:Sprite);
 		function ShowDialog(txt:String);
+		function InitAllDress();
 	}
 	
 }

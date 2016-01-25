@@ -17,11 +17,16 @@ package com.lele.Manager.Events
 		
 		public static const CALLDOACTION_GAME = "请求做动画";//后面加了GAME说明是反向;
 		public var CALLDOACTION_GAME_actionName:String;
+		public var CALLDOACTION_GAME_func:Function;
 		
 		public static const NETAVATARACTION_GAME = "网络玩家动画";
 		public var NETAVATARACTION_GAME_ID:String;//玩家ID
 		public var NETAVATARACTION_GAME_name:String;//Action Name
 		public var NETAVATARACTION_GAME_direction:String;//标识动作方向
+		
+		public static const NCHANGEDRESS_GAME = "网络玩家变装";
+		public var NCHANGEDRESS_GAME_id:String;
+		public var NCHANGEDRESS_GAME_HENHSC:String;
 		
 		public static const ADDNETPLAYER_GAME = "添加网络玩家";
 		public var ADDNETPLAYER_GAME_color:String;
@@ -29,6 +34,7 @@ package com.lele.Manager.Events
 		public var ADDNETPLAYER_GAME_ID:String;
 		public var ADDNETPLAYER_GAME_spownPoint:Point;
 		public var ADDNETPLAYER_GAME_map:String;
+		public var ADDNETPLAYER_GAME_dress:String;
 		
 		public static const CALLCLEANNETPLAYER = "请求清楚网络玩家";
 		

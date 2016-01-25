@@ -137,21 +137,28 @@ package com.lele.Manager
 				}
 				var loadedEvt:ManagerEventBase =new Player_Game_ManagerEvent(Player_Game_ManagerEvent.PLAYERLOADED)//向上级发送事件
 				_repoter.OnReport(loadedEvt);
-				
-				
-				
-				//临时代码 test 2015/12/19
+				//load cloth //临时代码 test 2016/1/23
+				if (GloableData.MoleDress_Cloth != "-")
 				{
-					_resourceLoader.LoadResource("Animation_Cloth", "Animation/Cloth/10001.swf", function(evt:Event)
+					_resourceLoader.LoadResource("Animation_Cloth", "Animation/Cloth/"+GloableData.MoleDress_Cloth+".swf", function(evt:Event)
 					{
 						 _playerAvatar.OnClothLoaded(evt.target.content as IClothAnimation);
 					},false,"NULL",true);
 				}
-				
-				
-				
-				
 			}
+		}
+		//refresh playerCloth//临时代码 test 2016 1 24
+		public function RefreshPlayerDress()
+		{
+			_playerAvatar.InitAllDress();
+			//load cloth //临时代码 test 2016/1/23
+				if (GloableData.MoleDress_Cloth != "-")
+				{
+					_resourceLoader.LoadResource("Animation_Cloth", "Animation/Cloth/"+GloableData.MoleDress_Cloth+".swf", function(evt:Event)
+					{
+						 _playerAvatar.OnClothLoaded(evt.target.content as IClothAnimation);
+					},false,"NULL",true);
+				}
 		}
 		//获取所有网络玩家信息列表
 		public function GetNetPlayerData():Array//双层Array 第二层 1 id 2 color 3 name
@@ -244,6 +251,16 @@ package com.lele.Manager
 					_repoter.OnReport(ets);
 					break;
 				}
+				case PLC_Player_ManagerEvent.LOCALPLAYERBECLICK:
+				{
+					//打开玩家面板
+					var startUserInfoPanel:Player_Game_ManagerEvent = new Player_Game_ManagerEvent(Player_Game_ManagerEvent.LOADSTARTAPP);
+					startUserInfoPanel.LOADSTARTAPP_name = "UserInfoPanelApp";
+					startUserInfoPanel.LOADSTARTAPP_useUI = false;
+					startUserInfoPanel.LOADSTARTAPP_params = null;
+					_repoter.OnReport(startUserInfoPanel);
+					break;
+				}
 			}
 		}
 		public function OnReceive(evt:Event):void//接收上级命令
@@ -317,7 +334,7 @@ package com.lele.Manager
 				case Player_Game_ManagerEvent.CALLDOACTION_GAME:
 				{
 					_playerController.SetStatePlay();
-					_playerController.DoAction((recEvt as Player_Game_ManagerEvent).CALLDOACTION_GAME_actionName, "dd", function() { _playerController.SetStateIdle(); } );
+					_playerController.DoAction((recEvt as Player_Game_ManagerEvent).CALLDOACTION_GAME_actionName, "dd", function() { if ((recEvt as Player_Game_ManagerEvent).CALLDOACTION_GAME_func != null) { (recEvt as Player_Game_ManagerEvent).CALLDOACTION_GAME_func(); } _playerController.SetStateIdle(); } );
 					return;
 				}
 				case Player_Game_ManagerEvent.CALLCLEANNETPLAYER:
@@ -340,7 +357,7 @@ package com.lele.Manager
 				{
 					if (GloableData.CurrentMap != (recEvt as Player_Game_ManagerEvent).ADDNETPLAYER_GAME_map) {trace("refuse Add"); return ; }
 					if (GetPlayerByID((recEvt as Player_Game_ManagerEvent).ADDNETPLAYER_GAME_ID) != null ) { trace("refuse Add"); return; }//已经有了
-					var tempNetUnit:NetPlayerUnit = new NetPlayerUnit((recEvt as Player_Game_ManagerEvent).ADDNETPLAYER_GAME_color, (recEvt as Player_Game_ManagerEvent).ADDNETPLAYER_GAME_spownPoint, _repoter, (recEvt as Player_Game_ManagerEvent).ADDNETPLAYER_GAME_ID,(recEvt as Player_Game_ManagerEvent).ADDNETPLAYER_GAME_name).LoadAndStart();
+					var tempNetUnit:NetPlayerUnit = new NetPlayerUnit((recEvt as Player_Game_ManagerEvent).ADDNETPLAYER_GAME_color, (recEvt as Player_Game_ManagerEvent).ADDNETPLAYER_GAME_spownPoint, _repoter, (recEvt as Player_Game_ManagerEvent).ADDNETPLAYER_GAME_ID,(recEvt as Player_Game_ManagerEvent).ADDNETPLAYER_GAME_name,(recEvt as Player_Game_ManagerEvent).ADDNETPLAYER_GAME_dress).LoadAndStart();
 					_multiplyPlayer.push(tempNetUnit);
 					tempNetUnit._styleClass = _chatStyle;
 					return;
@@ -398,6 +415,12 @@ package com.lele.Manager
 					}
 					return;
 				}
+				case Player_Game_ManagerEvent.NCHANGEDRESS_GAME:
+				{
+					GetPlayerByID((recEvt as Player_Game_ManagerEvent).NCHANGEDRESS_GAME_id).DoAction("cce", "dd");
+					GetPlayerByID((recEvt as Player_Game_ManagerEvent).NCHANGEDRESS_GAME_id).RefreshDress((recEvt as Player_Game_ManagerEvent).NCHANGEDRESS_GAME_HENHSC);
+					return;
+				}
 			}
 		}
 		
@@ -410,6 +433,7 @@ import com.lele.Controller.Avatar.Interface.IAvatar;
 import com.lele.Controller.NetWorkController;
 import com.lele.Data.FriendDataUnit;
 import com.lele.Data.IAnimationData;
+import com.lele.Data.IClothAnimation;
 import com.lele.Manager.Events.Player_Game_ManagerEvent;
 import com.lele.Manager.Interface.IReport;
 import com.lele.Data.GloableData;
@@ -423,10 +447,12 @@ class NetPlayerUnit implements IReport//玩家单元
 	private var _color:String;
 	private var _name:String;
 	private var _spownPoint:Point;
+	private var _dress:String;
 	
 	private var _unitAnimationData:IAnimationData;
 	private var _unitMoleData:Object;
 	private var _unitController:NetWorkController;
+	private var _unitDressLoaders:Array;
 	
 	private var _repoter:IReport;//直接向外界的report
 	
@@ -434,7 +460,8 @@ class NetPlayerUnit implements IReport//玩家单元
 	
 	public var _styleClass:Class;
 	
-	public function NetPlayerUnit(color:String, spownPoint:Point,repoter:IReport,playerID:String,name:String)
+	
+	public function NetPlayerUnit(color:String, spownPoint:Point,repoter:IReport,playerID:String,name:String,dress:String)
 	{
 		_color = color;
 		_name = name;
@@ -442,6 +469,12 @@ class NetPlayerUnit implements IReport//玩家单元
 		_unitMoleData = new Object();
 		_repoter = repoter;
 		_playerID = playerID;
+		_dress = dress;
+		_unitDressLoaders = new Array();
+		for (var a:int = 0; a < 6; a++ )
+		{
+			_unitDressLoaders.push(new Loader());
+		}
 	}
 	public function LoadAndStart():NetPlayerUnit
 	{
@@ -457,6 +490,7 @@ class NetPlayerUnit implements IReport//玩家单元
 		boneLoader.load(new URLRequest("Animation/bone.swf"));
 		effectLoader.load(new URLRequest("Animation/effect.swf"));
 		animationLoader.load(new URLRequest("Animation/AnimationData.swf"));
+		
 		return this;
 	}
 	public function get PlayerID():String
@@ -518,8 +552,37 @@ class NetPlayerUnit implements IReport//玩家单元
 				Avatar.SetComDialog(new _styleClass());
 			}
 			_repoter.OnReport(evtToStart);
+			
+			LoadDress();
 		}
 	}
+	///测试2016 1 23
+	public function LoadDress()
+	{
+		for (var a:int = 0; a < _unitDressLoaders.length; a++ )
+		{
+			(_unitDressLoaders[a] as Loader).unloadAndStop(true);
+		}
+		if (_dress.split("|")[5] != "-")
+		{
+			var clothLoader:Loader = new Loader();
+			clothLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, function(evt:Event) 
+			{
+				_unitController._netAvatar.OnClothLoaded(evt.target.content as IClothAnimation);
+			});
+			var urlRequest:URLRequest = new URLRequest( "Animation/Cloth/" + _dress.split("|")[5] + ".swf");
+			clothLoader.load(urlRequest);
+			_unitDressLoaders[5] = clothLoader;
+		}
+	}
+	public function RefreshDress(dressStr:String)
+	{
+		_dress = dressStr;
+		Avatar.InitAllDress();
+		LoadDress();
+	}
+	//以上
+	///
 	public function get Avatar():IAvatar
 	{
 		return _unitController._netAvatar;

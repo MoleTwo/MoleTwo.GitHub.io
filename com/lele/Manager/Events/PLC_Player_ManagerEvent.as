@@ -15,6 +15,8 @@ package com.lele.Manager.Events
 		public var LOCALPLAYERDOACTION_name:String;
 		public var LOCALPLAYERDOACTION_dir:String;
 		
+		public static const LOCALPLAYERBECLICK = "本玩家被点击";
+		
 		public function PLC_Player_ManagerEvent(type:String)
 		{
 			super(type);

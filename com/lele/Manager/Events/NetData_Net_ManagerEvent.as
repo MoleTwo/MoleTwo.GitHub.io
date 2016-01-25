@@ -19,6 +19,7 @@ package com.lele.Manager.Events
 		public var ADDNETPLAYER_name:String;//名字
 		public var ADDNETPLAYER_spownPoint:Point;
 		public var ADDNETPLAYER_map:String;
+		public var ADDNETPLAYER_dress:String;
 		
 		public static const LOGINRESULT = "登录结果";
 		public var LOGINRESULT_result:String;
@@ -48,6 +49,7 @@ package com.lele.Manager.Events
 		public var MOLEBASEINFO_num:int;
 		public var MOLEBASEINFO_name:String;
 		public var MOLEBASEINFO_color:String;
+		public var MOLEBASEINFO_dress:String;
 		
 		public static const CREATEMOLEBACK = "创建摩尔信息反馈";
 		public var CREATEMOLEBACK_result:Boolean;
@@ -84,6 +86,10 @@ package com.lele.Manager.Events
 		public static const NOTEY = "小纸条";
 		public var NOTEY_title:String;
 		public var NOTEY_content:String;
+		
+		public static const NCHANGEDRESS = "网络玩家变装";
+		public var NCHANGEDRESS_id:String;
+		public var NCHANGEDRESS_HENHSC:String;
 		
 		public function NetData_Net_ManagerEvent(evtType:String) 
 		{

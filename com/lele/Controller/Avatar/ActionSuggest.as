@@ -70,6 +70,12 @@ package com.lele.Controller.Avatar
 					return "scratch_head";
 				case "throw":case"投掷":
 					return "throw";
+				case "cs":case "change_cloth_start":
+					return "change_cloth_start";
+				case "ce":case "change_cloth_end":
+					return "change_cloth_end";
+				case "cce":
+					return "cce";
 			}
 			return "stand";
 		}

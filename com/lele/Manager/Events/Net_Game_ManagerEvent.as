@@ -19,6 +19,7 @@ package com.lele.Manager.Events
 		public var ADDNETPLAYER_name:String;//名字
 		public var ADDNETPLAYER_spownPoint:Point;//出生点
 		public var ADDNETPLAYER_map:String;
+		public var ADDNETPLAYER_dress:String;
 		
 		public static const LOGININ = "登录";
 		public var LOGININ_GAME_playerKey:String;//账号
@@ -71,6 +72,9 @@ package com.lele.Manager.Events
 		public var CREATEMOLE_GAME_color:String;
 		public var CREATEMOLE_GAME_name:String;
 		
+		public static const CHANGEDRESS_GAME = "改变着装";
+		public var CHANGEDRESS_GAME_HENHSC:String;
+		
 		public static const CREATACCOUNTRESULT = "创建账号结果";
 		public var CREATACCOUNTRESULT_result:Boolean;
 		public var CREATACCOUNTRESULT_id:String;
@@ -81,6 +85,7 @@ package com.lele.Manager.Events
 		public var MOLEBASEINFO_num:int;
 		public var MOLEBASEINFO_name:String;
 		public var MOLEBASEINFO_color:String;
+		public var MOLEBASEINFO_dress:String;
 		
 		public static const CREATEMOLEBACK = "创建摩尔信息反馈";
 		public var CREATEMOLEBACK_result:Boolean;
@@ -99,6 +104,10 @@ package com.lele.Manager.Events
 		public var NETTHROWITEM_dir:String;
 		public var NETTHROWITEM_blood:Number;
 		public var NETTHROWITEM_id:String;
+		
+		public static const NCHANGEDRESS = "网络玩家变装";
+		public var NCHANGEDRESS_id:String;
+		public var NCHANGEDRESS_HENHSC:String;
 		
 		
 		public function Net_Game_ManagerEvent(evtType:String) 

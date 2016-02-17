@@ -11,6 +11,7 @@ package com.lele.Manager
 	import flash.media.Sound;
 	import flash.media.SoundChannel;
 	import flash.media.SoundTransform;
+	import flash.net.URLRequest;
 	/**
 	 * ...
 	 * @author Lele
@@ -21,6 +22,8 @@ package com.lele.Manager
 		private var _resourceLoader:IResourceLoader;
 		private var _soundData:Object;//一个音频资源对象的集合
 		private var _dataList:Array;//一个地址集合
+		private var _dynamicMp3:Sound;//临时音频
+		private var _dynamicMp3SoundChanel:SoundChannel;
 		
 		public function SoundManager(resourceLoader:IResourceLoader,report:IReport) 
 		{
@@ -84,7 +87,29 @@ package com.lele.Manager
 		}
 		public function SmoothCloseByName(name:String)
 		{
-			(_soundData[MediaDataLink.GetUrlByName(name)] as DataUnit).SmoothStopAll();
+			try
+			{
+				(_soundData[MediaDataLink.GetUrlByName(name)] as DataUnit).SmoothStopAll();
+			}
+			catch(er:Error){}
+		}
+		public function LoadPlayMp3(url:String,times:int)
+		{
+			CloseMp3();
+			var request:URLRequest = new URLRequest(url);
+			_dynamicMp3 = new Sound(request);
+			_dynamicMp3SoundChanel=_dynamicMp3.play(0,times);
+		}
+		public function CloseMp3()
+		{
+			if (_dynamicMp3 == null) { return; }
+			_dynamicMp3SoundChanel.soundTransform = new SoundTransform(0);
+			try
+			{
+				_dynamicMp3.close();
+			}catch (er:Error) { }
+			_dynamicMp3SoundChanel = null;
+			_dynamicMp3 = null;
 		}
 		
 		private function InTheList(url:String):Boolean

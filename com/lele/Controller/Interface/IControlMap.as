@@ -10,6 +10,7 @@ package com.lele.Controller.Interface
 	{
 		function get Size_mc():Sprite;
 		function get ClickObj():Array;
+		function get AdditionClickObj():Array;
 	}
 	
 }

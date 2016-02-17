@@ -1,0 +1,63 @@
+<Activity><!--函数获取符号&  函数调用符号#  资源间接地址符号@(资源,返回完整地址)  内建变量获取符号$ 阻碍执行符!紧跟#后面-->
+	<Config>
+		<Root>Activity/Story/M10001/</Root><!--#(PlayActivity Activity/Story/M10001/M10001.xml)-->
+	</Config>
+	<Include><!--加@的为以root地址为基准的间接地址，否则是直接地址     包含一些资源文件-->
+		<PackUrl>Activity/Res/test_art.swf</PackUrl>
+		<PackUrl>Activity/Res/Grammar_func.swf</PackUrl>
+	</Include>
+	<Init>#(DefValue Boolean test #(False))</Init>
+	<Finish>#(CloseMp3)</Finish>
+	<SetupEntrance>
+		<Entrance>
+			<Map>Map001</Map><!--区域-->
+			<Display>Taste</Display><!--样式-->
+			<Position>300,200</Position>
+			<OnTrigger>#(NULL #(Print StartStory) #(GotoStep 0))</OnTrigger><!--当触发时执行-->
+		</Entrance>
+	</SetupEntrance>
+	<Step>
+		<Sp>
+			<Id>0</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(PlayMp3 Activity/Res/roco_mp3.mp3 4)</UnFunction>
+			<Function>#(NULL #(SetValue Boolean test #(True)) #(PlayMovie @5.swf #(GenerateFunction #!(GotoStep 1))))</Function>
+		</Sp>
+		<Sp>
+			<Id>1</Id><!--c_ 开头的是非nextstep过程-->
+			<Condition>#(CheckBoolean $test)</Condition><!--代表无条件执行--><!--或0-->
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(GotoMap Map002 #(MakePoint 300 300) #(GenerateFunction #!(NULL #(CloseCurrentMapSound) #(PlayMp3 Activity/Res/roco_mp3.mp3 999) #(GotoStep 2))))</Function>
+		</Sp>
+		<Sp>
+			<Id>2</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(PlayMovie @1.swf #(GenerateFunction #!(GotoStep 3)))</Function>
+		</Sp>
+		<Sp>
+			<Id>3</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(PlayMovie @2.swf #(GenerateFunction #!(GotoStep 4)))</Function>
+		</Sp>
+		<Sp>
+			<Id>4</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(PlayMovie @3.swf #(GenerateFunction #!(GotoStep 5)))</Function>
+		</Sp>
+		<Sp>
+			<Id>5</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(PlayMovie @4.swf #(GenerateFunction #!(GotoStep 6)))</Function>
+		</Sp>
+		<Sp>
+			<Id>6</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(GotoMap Map001 #(MakePoint 500 300) #(GenerateFunction #!(Finish)))</Function>
+		</Sp>
+	</Step>
+</Activity>

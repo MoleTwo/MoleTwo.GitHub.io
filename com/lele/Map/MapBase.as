@@ -75,20 +75,25 @@
 				}
 			}
 		}
+		public function AddActorToMaskLayer(actor:Sprite)
+		{
+			maskedObj.push(actor);
+			DepthAdd(actor);
+		}
 		private function DepthAdd(sp:Sprite)
 		{
 			var hasAdd:Boolean = false;
 			for (var a:int = 0; a < depth.numChildren; a++ )
 			{
-				if (depth.getChildAt(a) is MaskedObj || depth.getChildAt(a) is MaskedObj_Sprite&&depth.getChildAt(a).y>sp.y)
+				if ((depth.getChildAt(a) is MaskedObj || depth.getChildAt(a) is MaskedObj_Sprite)&&depth.getChildAt(a).y<sp.y)
 				{
-					depth.addChildAt(sp, a);
+					depth.addChildAt(sp, a+1>depth.numChildren-1?depth.numChildren-1:a+1);
 					hasAdd = true;
 				}
 			}
 			if (!hasAdd)
 			{
-				depth.addChild(sp);
+				depth.addChildAt(sp,0);
 			}
 		}
 		public function StartMask(target:IAvatar,isHit:Boolean=false,OnEnter:Function=null,OnLeave:Function=null)

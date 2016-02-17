@@ -42,6 +42,7 @@
 				case "UserInfoPanelApp":
 					return UserInfoPanelApp;
 			}
+			throw new Error("No such app");
 			return null;
 		}
 	}

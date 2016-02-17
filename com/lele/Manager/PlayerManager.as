@@ -605,12 +605,15 @@ class NetPlayerUnit implements IReport//玩家单元
 				showInfoPanelEvt.LOADSTARTAPP_name = "InfoPanelApp";
 				var teF:Array = GloableData.FriendData;
 				var isFriend:Boolean = false;
-				for (var b:int = 0; b < teF.length; b++)
+				if (teF != null)
 				{
-					if ((teF[b] as FriendDataUnit).ID == _playerID)
+					for (var b:int = 0; b < teF.length; b++)
 					{
-						isFriend = true;
-						break;
+						if ((teF[b] as FriendDataUnit).ID == _playerID)
+						{
+							isFriend = true;
+							break;
+						}
 					}
 				}
 				var params:Array = new Array();

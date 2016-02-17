@@ -19,6 +19,7 @@ package com.lele.Data
 		public static var MoleName:String;
 		public static var FriendData:Array;
 		public static var VipNetEnable:Boolean;
+		public static var ActivityConditionTime:int;
 		
 		//放这里是出于效率而不是结构考虑
 		public static var MoleDress_Hat:String;

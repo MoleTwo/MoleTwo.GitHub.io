@@ -1,10 +1,11 @@
 ﻿package com.lele.Manager
 {
-	import adobe.utils.CustomActions;
 	import com.lele.Container.AppContainer;
+	import com.lele.Container.ContainerBase;
 	import com.lele.Controller.Avatar.Events.NetWorkController_NetPlayerUnit_Event;
 	import com.lele.Manager.Interface.IApplicationManager;
 	import com.lele.Manager.Interface.IApplyAppContainer;
+	import com.lele.Manager.Interface.ICommand;
 	import com.lele.Controller.Avatar.ActionSuggest;
 	import com.lele.Container.EffectContainer;
 	import com.lele.Container.InteractContainer;
@@ -15,14 +16,20 @@
 	import com.lele.Manager.Events.*;
 	import com.lele.Manager.Interface.INetManager;
 	import com.lele.Manager.Interface.IReport;
+	import com.lele.Map.RuntimeActor;
+	import com.lele.Plugin.Console.ConsoleWindow;
 	import com.lele.Plugin.FpsTool.Fps;
 	import com.lele.Plugin.RoadFind.RoadFinder;
 	import flash.display.DisplayObject;
+	import flash.display.Loader;
 	import flash.display.MovieClip;
 	import flash.display.SpreadMethod;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.IEventDispatcher;
 	import flash.events.TimerEvent;
+	import flash.utils.getQualifiedClassName;
+	import flash.net.URLRequest;
 	import flash.text.TextField;
 	import flash.geom.Point;
 	import flash.utils.Timer;
@@ -30,14 +37,17 @@
 	 * ...
 	 * @author Lele
 	 */
-	public class GameManager extends Sprite implements IReport,IApplyAppContainer//存在加载速度不协调造成的bug
+	public class GameManager extends Sprite implements IReport,IApplyAppContainer,ICommand,IEventDispatcher//存在加载速度不协调造成的bug
 	{
+		//通用事件接口
+		private static var _eventDispatcher:IEventDispatcher;
 		//管理器
 		private var _mapManager:MapManager;
 		private var _resourceManager:ResourceManager;
 		private var _soundManager:SoundManager;
 		private var _uiManager:UIManager;
 		private var _playerManager:PlayerManager;
+		private var _acitvityManager:ActivityManager;
 		private static var _appManager:ApplicationManager;
 		private static var _netManager:NetManager;
 		private var _interactManager:InteractManager;
@@ -47,6 +57,7 @@
 		private var _uiContainer:Sprite;
 		private var _mapsContainer:Sprite;
 		private var _appContainer:AppContainer;
+		private var _movieContainer:ContainerBase;
 		private var _effectContainer:EffectContainer;
 		private var _uiHighContainer:Sprite;//主要是加载进度条
 		private var _interactContainer:InteractContainer;
@@ -56,18 +67,27 @@
 		private var _port:int = 51888;
 		//debug窗口
 		private var _textField:TextField;
+		//console窗口
+		private var _console:ConsoleWindow;
 		//flags
 		private var _beginFlag:Boolean = true;//是否首次打开
+		//接口
+		private static var _iCommand:ICommand;
+		//接口临时数据
+		private var _changeMapCallBack:Function;
 		public function GameManager() 
-		{
+		{	
+			_eventDispatcher = this;
+			
 			GloableData.Environment = "net";
 			GloableData.HasLogin = false;
 			GloableData.CurrentMap = "Map001";
 			GloableData.CurrentWeather = "Sun";
 			GloableData.CurrentWeatherStrength = 0;
 			GloableData.Version = "0.5";
-			GloableData.MasterMode = false;
+			GloableData.MasterMode = true;
 			GloableData.VipNetEnable = true;
+			GloableData.ActivityConditionTime = 500;
 			if (GloableData.Environment == "net")
 			{
 				_ip = "121.42.202.168";
@@ -78,6 +98,7 @@
 			_effectContainer = new EffectContainer();
 			_uiHighContainer = new Sprite();
 			_appContainer = new AppContainer();//应用层
+			_movieContainer = new ContainerBase();
 			_debugContainer = new Sprite();
 			_interactContainer = new InteractContainer();//交互提示tip
 			
@@ -87,7 +108,8 @@
 			_soundManager = new SoundManager(_resourceManager,this);
 			_uiManager = new UIManager(_resourceManager, this);
 			_playerManager = new PlayerManager(_resourceManager, this);
-			_appManager = new ApplicationManager(_resourceManager, this,this);
+			_appManager = new ApplicationManager(_resourceManager, this, this);
+			_acitvityManager = new ActivityManager(_resourceManager, this,_movieContainer);
 			_netManager = new NetManager(_ip, _port, this);
 			_interactManager = new InteractManager(this, _interactContainer);
 			
@@ -108,8 +130,16 @@
 				var fps:Fps = new Fps();
 				fps.y = 0;
 				fps.x = 65;
-				if(GloableData.MasterMode)
+				if (GloableData.MasterMode)
 				_debugContainer.addChild(fps);
+				
+				//创建Console
+				if (GloableData.MasterMode)
+				{
+					_console = new ConsoleWindow(this);
+					_debugContainer.addChild(_console);
+					_console.On();
+				}
 			}
 			AddAllDisplay();
 			
@@ -126,6 +156,12 @@
 			//var clock:Timer = new Timer(4000, 1);
 			//clock.addEventListener(TimerEvent.TIMER, OnLogin);
 			//clock.start();
+			//接口
+			_iCommand = this;
+		}
+		public static function GetEventDispatcher():IEventDispatcher
+		{
+			return _eventDispatcher;
 		}
 		
 		public function OnReport(evt:Event):void
@@ -187,7 +223,9 @@
 					}
 					case Map_Game_ManagerEvent.CHANGE_MAP:
 					{
-						//发送未在地图上事件即设置服务器的对应Unit  Update为false
+						ChangeMap((evt as Map_Game_ManagerEvent).CHANGE_MAP_targetMap, (evt as Map_Game_ManagerEvent).CHANGE_MAP_spawnPoint);
+						return;
+						/*//发送未在地图上事件即设置服务器的对应Unit  Update为false
 						var disEvt:Net_Game_ManagerEvent = new Net_Game_ManagerEvent(Net_Game_ManagerEvent.DISUPDATE_GAME);
 						_netManager.OnReceive(disEvt);
 						
@@ -197,6 +235,8 @@
 						AddAllDisplay();
 						
 						var cme:Map_Game_ManagerEvent = evt as Map_Game_ManagerEvent;
+						trace(cme.CHANGE_MAP_sourceMap);
+						trace(cme.CHANGE_MAP_targetMap);
 						var target:String = cme.CHANGE_MAP_targetMap;
 						_dataBridge.spawnPoint = cme.CHANGE_MAP_spawnPoint;//dataBridge是跨越地图沟通的数据
 						_soundManager.SmoothCloseByName(cme.CHANGE_MAP_sourceMap + "MediaData");
@@ -210,17 +250,19 @@
 						_playerManager.OnReceive(callCleanNetPlayer);
 						
 						GloableData.CurrentMap = cme.CHANGE_MAP_targetMap;
-						return;
+						return;*/
 					}
 					case UI_Game_ManagerEvent.CALLMAPMANAGERCHANGEMAP:
 					{
+						GotoMap([(evt as UI_Game_ManagerEvent).CALLMAPMANAGERCHANGEMAP_targetMap, (evt as UI_Game_ManagerEvent).CALLMAPMANAGERCHANGEMAP_spawnPoint]);
+						return;
 						var mapEvt:MapData_Map_ManagerEvent = new MapData_Map_ManagerEvent(MapData_Map_ManagerEvent.CHANGE_MAP);
 						mapEvt.CHANGE_MAP_spawnPoint = (evt as UI_Game_ManagerEvent).CALLMAPMANAGERCHANGEMAP_spawnPoint;
 						mapEvt.CHANGE_MAP_targetMap = (evt as UI_Game_ManagerEvent).CALLMAPMANAGERCHANGEMAP_targetMap;
 						mapEvt.CHANGE_MAP_sourceMap = (evt as UI_Game_ManagerEvent).CALLMAPMANAGERCHANGEMAP_sourceMap;
 						_mapManager.OnReport(mapEvt);
 						
-						GloableData.CurrentMap = mapEvt.CHANGE_MAP_targetMap;
+						//GloableData.CurrentMap = mapEvt.CHANGE_MAP_targetMap;
 						return;
 					}
 					case Map_Game_ManagerEvent.CALLLOADAPP:
@@ -633,6 +675,34 @@
 			_appManager.LoadStartApp(AppDataLink.GetUrlByName("FriendsApp"), _appContainer.GetContainer());//加载聊天玩家信息应用组件
 			_appManager.LoadStartApp(AppDataLink.GetUrlByName("LittleNoteApp"), _appContainer.GetContainer());//加载小纸条基础应用组件
 		}
+		private function ChangeMap(target:String,spawnPoing:Point)
+		{
+			//发送未在地图上事件即设置服务器的对应Unit  Update为false
+			var disEvt:Net_Game_ManagerEvent = new Net_Game_ManagerEvent(Net_Game_ManagerEvent.DISUPDATE_GAME);
+			_netManager.OnReceive(disEvt);
+			
+			_effectContainer.Shoot(_mapsContainer, _uiContainer);//as3有BUG一旦用容器去绘制图形就会导致对象保存丢失
+			_effectContainer.UnShowAndTurnDark();
+			RemoveAllDisplay();   //As有奇葩bug会删除所有东西
+			AddAllDisplay();
+			
+			_dataBridge.spawnPoint = spawnPoing;//dataBridge是跨越地图沟通的数据
+			_soundManager.SmoothCloseByName(GloableData.CurrentMap + "MediaData");
+			_soundManager.LoadMusic(MediaDataLink.GetUrlByName(target+"MediaData"), true, "MAP");
+			_mapManager.UnLoadMap();
+			_playerManager.ResetAvatar();
+			_mapManager.LoadAndStart(MapDataLink.GetUrlByName(target), _mapsContainer, true, "MAP");
+			
+			//清除网络玩家
+			var callCleanNetPlayer:Player_Game_ManagerEvent = new Player_Game_ManagerEvent(Player_Game_ManagerEvent.CALLCLEANNETPLAYER);
+			_playerManager.OnReceive(callCleanNetPlayer);
+			
+			GloableData.CurrentMap = target;
+		}
+		public static function GetICommand():ICommand
+		{
+			return _iCommand;
+		}
 		public function GetAppContainer():Sprite
 		{
 			return _appContainer.GetContainer();
@@ -651,6 +721,7 @@
 			this.addChild(_appContainer);
 			this.addChild(_effectContainer);
 			this.addChild(_uiHighContainer);
+			this.addChild(_movieContainer);
 			this.addChild(_interactContainer);
 			this.addChild(_debugContainer);
 		}
@@ -679,6 +750,9 @@
 			//执行大型组件初始化
 			if (_beginFlag) { OnDelayStart(); }
 			_beginFlag = false;
+			//执行回调函数
+			if (_changeMapCallBack != null) { _changeMapCallBack(); _changeMapCallBack = null; }
+			dispatchEvent(new APIEvent(APIEvent.OnMapChange));
 		}
 		private function OnWeatherChange()//当天气改变
 		{
@@ -700,6 +774,64 @@
 		{
 			return _appManager;
 		}
+		
+		
+		
+		//api
+		public function GotoMap(args:Array)//(map:String,spawnPoint:Point,callBack_changed:Function=null)
+		{
+			ChangeMap(args[0], args[1]);
+			_changeMapCallBack = args[2];
+		}
+		public function AddActorToMap(args:Array)//(actor:RuntimeActor, place:Point, callBack_onClick:Function = null )
+		{
+			args[0].x += args[1].x;
+			args[0].y += args[1].y;
+			args[0].onClick = args[2];
+			_mapManager.AddActorToMap(args[0]);
+		}
+		public function AddActorUrlToMap(args:Array)//(packUrl:String,item:String, place:Point, callBack_onClick:Function = null)
+		{
+			var loader:Loader = new Loader();
+			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, function(evt:Event)
+			{
+				var target:Class = loader.contentLoaderInfo.applicationDomain.getDefinition(args[1]) as Class;
+				var tar:RuntimeActor = new target();
+				tar.x += args[2].x;
+				tar.y += args[2].y;
+				tar.onClick = args[3];
+				_mapManager.AddActorToMap(tar);
+			});
+			var request:URLRequest = new URLRequest(args[0]);
+			loader.load(request);
+		}
+		public function CloseCurrentMapSound(args:Array=null)//(callBack:Function = null)
+		{
+			_soundManager.SmoothCloseByName(GloableData.CurrentMap + "MediaData");
+			if (args != null&&args[0]!=null) { args[0](); }
+		}
+		public function PlayMp3(args:Array)//(url:String,times:int,callBack:Function = null)
+		{
+			_soundManager.LoadPlayMp3(args[0], args[1]);
+			if (args[2] != null) { args[2](); }
+		}
+		public function PlayApp(args:Array)//(url:String, param:Array=null,callBack:Function = null)
+		{
+			_appManager.LoadStartApp(args[0], _appContainer.GetContainer(), true, "ITEM", args[1]);
+			if (args[2] != null) { args[2](); }
+		}
+		public function PlayMovie(args:Array)//(url:String,callBack:Function = null)//param 第一个，如果param有，则为OnFinish回调!
+		{
+			_acitvityManager.LoadPlayMovie(args[0],false,"NULL",args[1]);
+		}
+		public function PlayActivity(args:Array)//(url:String)
+		{
+			_acitvityManager.LoadStartActivity(args[0]);
+		}
+		public function CloseMp3(args:Array=null)//(callBack:Function = null)
+		{
+			_soundManager.CloseMp3();
+			if (args != null&&args[0]!=null ) { args[0](); }
+		}
 	}
-
 }

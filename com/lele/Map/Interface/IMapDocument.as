@@ -22,6 +22,7 @@ package com.lele.Map.Interface
 		function Clean();
 		function SetWeather(weather:Weather, strength:int);
 		function AddToFrontLayer(sp:Sprite);
+		function AddActorToMap(actor:Sprite);
 	}
 	
 }

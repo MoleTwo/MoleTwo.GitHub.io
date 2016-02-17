@@ -11,6 +11,7 @@ package com.lele.Map.Interface
 		function SetMaskObj():void;
 		function SetMovieClip():void;
 		function SetMcScripts():void;
+		function AddClickObj(obj:IClickAble):void;
 	}
 	
 }

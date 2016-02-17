@@ -71,6 +71,10 @@ package com.lele.Manager
 		{
 			_currentMapDoc.AddToFrontLayer(sp);
 		}
+		public function AddActorToMap(actor:Sprite)
+		{
+			_currentMapDoc.AddActorToMap(actor);
+		}
 		public function AddPlayerToMap(myAvatar:IAvatar,swapPo:Point,isHit:Boolean,playController:PlayerController)
 		{
 			_currentMapDoc.LoadMap(myAvatar, swapPo,isHit, playController,this);//向本级汇报

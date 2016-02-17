@@ -2,6 +2,7 @@ package com.lele.Controller
 {
 	import com.lele.Controller.Interface.IControlMap;
 	import com.lele.Map.Interface.IClickAble;
+	import com.lele.Map.RuntimeActor;
 	import com.lele.MathTool.LeleMath;
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
@@ -43,6 +44,7 @@ package com.lele.Controller
 			if (!controlable) { return; }//终止，并且让子类不执行下去
 			if (!_clickEnable) { return; }
 			var temp:Array = _controlMap.ClickObj;
+			var temp2:Array = _controlMap.AdditionClickObj;
 			var targetArray:Array = new Array();
 			for (var b:int = 0; b < temp.length; b++ )
 			{
@@ -50,6 +52,10 @@ package com.lele.Controller
 				{
 					targetArray.push(temp[b]);
 				}
+			}
+			if (temp2 != null)
+			{
+				for (var c:int = 0; c < temp2.length; c++ ){if (temp2[c] is IClickAble){targetArray.push(temp2[c]);}}
 			}
 			//添加拓展点击对象
 			targetArray = CatchClickObj(targetArray, AdditionClickObj);

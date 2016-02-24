@@ -8,6 +8,9 @@ package com.lele.Manager.Interface
 	 */
 	public interface INetManager 
 	{
+		
+		
+		
 		function OnReceive(evt:Event);
 	}
 	

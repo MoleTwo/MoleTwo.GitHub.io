@@ -91,6 +91,10 @@ package com.lele.Manager.Events
 		public var NCHANGEDRESS_id:String;
 		public var NCHANGEDRESS_HENHSC:String;
 		
+		public static const SHOWDIALOG = "显示消息框";
+		public var SHOWDIALOG_mood:String;
+		public var SHOWDIALOG_msg:String;
+		
 		public function NetData_Net_ManagerEvent(evtType:String) 
 		{
 			super(evtType);

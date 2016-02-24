@@ -1,6 +1,7 @@
 package com.lele.Controller
 {
 	import adobe.utils.CustomActions;
+	import com.lele.Controller.Avatar.ActionSuggest;
 	import com.lele.Controller.Avatar.Events.Avatar_PlayerController_Event;
 	import com.lele.Manager.Events.PLC_Player_ManagerEvent;
 	import com.lele.Map.BitMapUtil;
@@ -134,8 +135,19 @@ package com.lele.Controller
 			_avatar.ShowDialog(txt);
 		}
 		
+		public function MoveTo(po:Point)
+		{
+			var evt:MouseEvent = new MouseEvent(MouseEvent.CLICK);
+			evt.localX = po.x;
+			evt.localY = po.y;
+			OnChildMouseClick(evt);
+		}
+		
 		override protected function OnChildMouseClick(evt:MouseEvent) 
 		{
+			var mbc:PLC_Player_ManagerEvent = new PLC_Player_ManagerEvent(PLC_Player_ManagerEvent.LOCALMAPCLICKED);
+			mbc.LOCALMAPCLICKED_position = new Point(evt.localX, evt.localY);
+			_repoter.OnReport(mbc);
 			//当点击到可交互物件时，获取物件态度，没点到执行，点到看态度执行,这里由抽象父类调用
 			//判断是否点击在玩家上
 			_rotateAround = true;

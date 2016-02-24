@@ -50,7 +50,7 @@ package com.lele.Controller.Avatar
 					return "hello";
 				case "委屈": case "feel_wronged":
 					return "feel_wronged";
-				case "坐": case "sitdown_1":
+				case "坐": case "sitdown_1": case "sitdown":
 					return "sitdown_1";
 				case "跳舞": case "dance":
 					return "dance";

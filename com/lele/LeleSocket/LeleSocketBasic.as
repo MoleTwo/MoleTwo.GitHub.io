@@ -41,7 +41,6 @@ package com.lele.LeleSocket
 		}
 		public function Send(message:String)
 		{
-			trace(message);
 			var byteToSend:ByteArray = new ByteArray();
 			byteToSend.writeUTFBytes(message);
 			byteToSend.position = 0;

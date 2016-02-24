@@ -17,6 +17,9 @@ package com.lele.Manager.Events
 		
 		public static const LOCALPLAYERBECLICK = "本玩家被点击";
 		
+		public static const LOCALMAPCLICKED = "地图被点击";
+		public var LOCALMAPCLICKED_position:Point;
+		
 		public function PLC_Player_ManagerEvent(type:String)
 		{
 			super(type);

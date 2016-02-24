@@ -2,8 +2,11 @@ package com.lele.Plugin.Lesp
 {
 	import adobe.utils.CustomActions;
 	import flash.display.TriangleCulling;
+	import flash.events.Event;
+	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.getDefinitionByName;
+	import flash.utils.Timer;
 	/**
 	 * ...
 	 * @author Lele
@@ -60,17 +63,22 @@ package com.lele.Plugin.Lesp
 			{
 				funcS=funcS.replace(String(custF.param[a]), String(func.params[a]));
 			}
+			funcS = "#" + funcS.substr(2, funcS.length);
 			return ProcessOnce(funcS);
 		}
 		//执行Func
 		public function ExecFunc(func:String):Object
 		{
+			if (func.charAt(1) == "!")
+			{
+				func = "#" + String(func).substr(2, String(func).length);
+			}
 			return ExecFuncHelp(ProcessOnce(func));
 		}
         private function ExecFuncHelp(func:Func) : Object
         {
 			//这里替换自定义函数
-			if (_FunctionMap[func.Name] != undefined)
+			while (_FunctionMap[func.Name] != undefined)
 			{
 				func = GetCustomFunc(func);
 			}
@@ -88,14 +96,11 @@ package com.lele.Plugin.Lesp
 					}
 					else if (func.params[a] is String && String(func.params[a]).charAt(0) == "#")
 					{
-						if (String(func.params[a]).charAt(1) == "!")
-						{
-							func.params[a] = "#" + String(func.params[a]).substr(2, String(func.params[a]).length);
-						}
-						else
+						if (String(func.params[a]).charAt(1) != "!")
 						{
 							func.params[a] = this.ProcessOnce(func.params[a]);
 							isDoing = true;
+							//func.params[a] = "#" + String(func.params[a]).substr(2, String(func.params[a]).length);
 						}
 					}
 					else if (func.params[a] is String && String(func.params[a]).charAt(0) == "&")
@@ -203,6 +208,58 @@ package com.lele.Plugin.Lesp
 		
 		
 		///lele func
+		private function Random(args:Array):Number //get random num between a to b
+		{
+			if (Number(args[0]) > Number(args[1]))
+			{
+				return Math.random() * (Number(args[0]) -Number(args[1])) + Number(args[1]);
+			}
+			return Math.random() * (Number(args[1]) -Number(args[0])) +Number( args[0]);
+		}
+		private function Add(args:Array):Number //source add1 add2 add3....
+		{
+			var result:Number =Number(args[0]);
+			for (var a:int = 1; a < args.length; a++ )
+			{
+				result +=Number( args[a]);
+			}
+			return result;
+		}
+		private function IsEqual(args:Array):Boolean// obj1   obj2
+		{
+			return args[0] == args[1];
+		}
+		private function Branch(args:Array) //condition yesFunc noFunc
+		{
+			if (args[0])
+			{
+				if (args[1] != null) { ExecFunc(args[1]); }
+			}
+			else
+			{
+				if (args[2] != null) { ExecFunc(args[2]); }
+			}
+		}
+		private function Clock(args:Array) //delNum times==0 StepFunc CompleteFunc
+		{
+			var timer:Timer = new Timer(args[0], args[1]);
+			var funcA:Function=function(evt:Event)
+			{
+				ExecFunc(args[2]);
+			}
+			var funcB:Function=function(evt:Event)
+			{
+				timer.removeEventListener(TimerEvent.TIMER, funcA);
+				timer.removeEventListener(TimerEvent.TIMER, funcB);
+				if (args[3] != null)
+				{
+					ExecFunc(args[3]);
+				}
+			}
+			timer.addEventListener(TimerEvent.TIMER,funcA );
+			timer.addEventListener(TimerEvent.TIMER_COMPLETE, funcB );
+			timer.start();
+		}
 		private function DefFunc(args:Array) //name func params....
 		{
 			var custc:CustomFunc = new CustomFunc();
@@ -241,7 +298,7 @@ package com.lele.Plugin.Lesp
 			}
 			return str.substr(1,str.length);
 		}
-		private function NULL(args:Array=null){}
+		private function NULL(args:Array = null) {}
 		private function MakePoint(args:Array):Point
 		{
 			return new Point(Number(args[0]), Number(args[1]));

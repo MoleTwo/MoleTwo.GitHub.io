@@ -19,6 +19,9 @@ package com.lele.Manager.Interface
 		function PlayApp(args:Array);//(url:String, param:Array = null,callBack:Function = null);
 		function PlayMovie(args:Array);//(url:String,callBack:Function = null)//param 第一个，如果param有，则为OnFinish回调!
 		function PlayActivity(args:Array);//(url:String);
+		function MoveTo(args:Array);//(point:Point) 移动到
+		function DoAction(args:Array);//(actionName:String,direction:String,callBack:Function)
+		function ShowMsg(args:Array);//(msg:String)
 	}
 	
 }

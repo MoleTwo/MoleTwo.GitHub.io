@@ -28,6 +28,7 @@
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;
 	import flash.events.TimerEvent;
+	import flash.system.Security;
 	import flash.utils.getQualifiedClassName;
 	import flash.net.URLRequest;
 	import flash.text.TextField;
@@ -196,6 +197,7 @@
 						_playerManager.LoadAndStart("Animation/AnimationData.swf");
 						_uiManager.LoadUI("UI/WorldMap.swf", _uiHighContainer,true,"Map");
 						_uiManager.LoadUI("UI/ToolBar.swf", _uiContainer, true, "MAP");//暂时这样放，本身这样就是暂时的
+						_interactManager.LoadRes("UI/InterectRes.swf");
 						_mapManager.LoadAndStart(MapDataLink.Map001, _mapsContainer,true,"MAP");//传递进回调函数，当加载完成
 						_soundManager.LoadMusic(MediaDataLink.Map001MediaData, true, "MAP");
 						return;
@@ -444,6 +446,11 @@
 						netThrow.CALLNETTHROWITEM_GAME_itemStyle = (evt as Player_Game_ManagerEvent).CALLNETTHROWITEM_itemStyle;
 						netThrow.CALLNETTHROWITEM_GAME_position = (evt as Player_Game_ManagerEvent).CALLNETTHROWITEM_position;
 						_netManager.OnReceive(netThrow);
+						return;
+					}
+					case Player_Game_ManagerEvent.LOCALMAPCLICKED:
+					{
+						_interactManager.OnMapClick((evt as Player_Game_ManagerEvent).LOCALMAPCLICKED_position);
 						return;
 					}
 					case Net_Game_ManagerEvent.DOACTION:
@@ -778,6 +785,12 @@
 		
 		
 		//api
+		public function ShowMsg(args:Array)//(msg:String)
+		{
+			var ui_game:UI_Game_ManagerEvent = new UI_Game_ManagerEvent(UI_Game_ManagerEvent.SHOWMSG);
+			ui_game.SHOWMSG_msg = args[0];
+			OnReport(ui_game);
+		}
 		public function GotoMap(args:Array)//(map:String,spawnPoint:Point,callBack_changed:Function=null)
 		{
 			ChangeMap(args[0], args[1]);
@@ -832,6 +845,18 @@
 		{
 			_soundManager.CloseMp3();
 			if (args != null&&args[0]!=null ) { args[0](); }
+		}
+		public function MoveTo(args:Array)
+		{
+			_playerManager.MoveTo(args[0]);
+		}
+		public function DoAction(args:Array)
+		{
+			_playerManager.playerController.DoAction(args[0], args[1], args[2]);
+			var netAcEvt:Net_Game_ManagerEvent = new Net_Game_ManagerEvent(Net_Game_ManagerEvent.NETDOACTION_GAME);
+			netAcEvt.NETDOACTION_GAME_name = ActionSuggest.SuggestAction(args[0]);
+			netAcEvt.NETDOACTION_GAME_dir = args[1];
+			_netManager.OnReceive(netAcEvt);
 		}
 	}
 }

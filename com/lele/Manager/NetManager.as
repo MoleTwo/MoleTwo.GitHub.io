@@ -44,6 +44,10 @@ package com.lele.Manager
 			_privateNetWork = this;
 		}
 		
+		
+		
+		
+		
 		private function OnCommand(command:Command,vip:Boolean=false)
 		{
 			if (vip && GloableData.VipNetEnable)
@@ -216,6 +220,11 @@ package com.lele.Manager
 					toGameManger = new Net_Game_ManagerEvent(Net_Game_ManagerEvent.NCHANGEDRESS);
 					toGameManger.NCHANGEDRESS_HENHSC = tempEvt.NCHANGEDRESS_HENHSC;
 					toGameManger.NCHANGEDRESS_id = tempEvt.NCHANGEDRESS_id;
+					break;
+				}
+				case NetData_Net_ManagerEvent.SHOWDIALOG:
+				{
+					ApplicationManager.GetIDialog().ShowDialog("emoy", tempEvt.SHOWDIALOG_mood, tempEvt.SHOWDIALOG_msg, null);
 					break;
 				}
 			}

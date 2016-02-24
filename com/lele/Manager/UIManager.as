@@ -73,6 +73,7 @@ package com.lele.Manager
 			{
 				if (evt._isComplete) 
 				{
+					_mapLoadingBar.SetText("100%");
 					_mapLoadingBar.gotoAndPlay(101); //当完成时从101帧播放
 					_mapLoadingBar.addFrameScript(130, function() 
 					{
@@ -83,6 +84,7 @@ package com.lele.Manager
 				}
 				if (_loadingBarContainer.numChildren == 0) { _loadingBarContainer.addChild(_mapLoadingBar); }//当无内部对象时加载
 				_mapLoadingBar.gotoAndStop(evt._process);
+				_mapLoadingBar.SetText(String(int(evt._process)) + "%");
 			}
 		}
 		private function OnPostProcessOver()

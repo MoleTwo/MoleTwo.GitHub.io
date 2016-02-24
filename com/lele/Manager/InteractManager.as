@@ -1,11 +1,16 @@
 package com.lele.Manager
 {
+	import com.lele.Manager.Interface.IResourceLoader;
+	import flash.display.Loader;
+	import flash.display.MovieClip;
 	import flash.events.MouseEvent;
 	import com.lele.Manager.Interface.IReport;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import com.lele.Container.ContainerBase;
 	import flash.geom.Point;
+	import flash.net.URLLoader;
+	import flash.net.URLRequest;
 	import flash.ui.Mouse;
 	/**
 	 * ...
@@ -15,17 +20,48 @@ package com.lele.Manager
 	{
 		private var _repoter:IReport;
 		private var _container:ContainerBase;
+		private var _clickStyle:Class;
+		private var _interectResLoader:Loader;
 		
 		public function InteractManager(report:IReport,interactContainer:ContainerBase) 
 		{
 			_repoter = report;
 			_container = interactContainer;
+			
+			_interectResLoader = new Loader();
+		}
+		
+		public function LoadRes(url:String)
+		{
+			var req:URLRequest = new URLRequest(url);
+			_interectResLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, OnLoaded);
+			_interectResLoader.load(req);
+		}
+		private function OnLoaded(evt:Event)
+		{
+			_interectResLoader.contentLoaderInfo.removeEventListener(Event.COMPLETE, OnLoaded);
+			_clickStyle = _interectResLoader.contentLoaderInfo.applicationDomain.getDefinition("MouseClick") as Class;
 		}
 		
 		public function OnReport(evt:Event):void
 		{
 			
 		}
+		
+		public function OnMapClick(position:Point)
+		{
+			if (_clickStyle == null) { return; }
+			var mc = new _clickStyle();
+			(mc as MovieClip).x = position.x;
+			(mc as MovieClip).y = position.y;
+			(mc as MovieClip).addFrameScript(6, function()
+			{
+				(mc as MovieClip).stop();
+				_container.removeChild(mc);
+			});
+			_container.addChild(mc);
+		}
+		
 		
 		public function MouseClickMode(style:Sprite, OnClick:Function)
 		{

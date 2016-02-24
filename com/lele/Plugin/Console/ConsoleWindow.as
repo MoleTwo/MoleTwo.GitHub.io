@@ -113,6 +113,10 @@ package com.lele.Plugin.Console
 		public function Printer(str:String)
 		{
 			_txtField.appendText("\t" + str + "\n");
+			if (_txtField.numLines > 4)
+			{
+				_txtField.scrollV++;
+			}
 		}
 		//IConsole
 		

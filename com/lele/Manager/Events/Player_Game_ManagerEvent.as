@@ -95,6 +95,9 @@ package com.lele.Manager.Events
 		public var LOADSTARTAPP_uiType:String;
 		public var LOADSTARTAPP_params:Array;
 		
+		public static const LOCALMAPCLICKED = "地图被点击";
+		public var LOCALMAPCLICKED_position:Point;
+		
 		public function Player_Game_ManagerEvent(evtType:String) 
 		{
 			super(evtType);

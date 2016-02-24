@@ -89,6 +89,11 @@ package com.lele.Manager
 			if(_playerController!=null)
 			_playerController.Reset();
 		}
+		
+		public function MoveTo(po:Point)
+		{
+			_playerController.MoveTo(po);
+		}
 		private function OnLoadComplete(evt:Event)
 		{
 			_animationData = evt.target.content as IAnimationData;
@@ -137,14 +142,7 @@ package com.lele.Manager
 				}
 				var loadedEvt:ManagerEventBase =new Player_Game_ManagerEvent(Player_Game_ManagerEvent.PLAYERLOADED)//向上级发送事件
 				_repoter.OnReport(loadedEvt);
-				//load cloth //临时代码 test 2016/1/23
-				if (GloableData.MoleDress_Cloth != "-")
-				{
-					_resourceLoader.LoadResource("Animation_Cloth", "Animation/Cloth/"+GloableData.MoleDress_Cloth+".swf", function(evt:Event)
-					{
-						 _playerAvatar.OnClothLoaded(evt.target.content as IClothAnimation);
-					},false,"NULL",true);
-				}
+				RefreshPlayerDress();
 			}
 		}
 		//refresh playerCloth//临时代码 test 2016 1 24
@@ -155,6 +153,41 @@ package com.lele.Manager
 				if (GloableData.MoleDress_Cloth != "-")
 				{
 					_resourceLoader.LoadResource("Animation_Cloth", "Animation/Cloth/"+GloableData.MoleDress_Cloth+".swf", function(evt:Event)
+					{
+						 _playerAvatar.OnClothLoaded(evt.target.content as IClothAnimation);
+					},false,"NULL",true);
+				}
+				if (GloableData.MoleDress_Shoes != "-")
+				{
+					_resourceLoader.LoadResource("Animation_Cloth", "Animation/Cloth/"+GloableData.MoleDress_Shoes+".swf", function(evt:Event)
+					{
+						 _playerAvatar.OnClothLoaded(evt.target.content as IClothAnimation);
+					},false,"NULL",true);
+				}
+				if (GloableData.MoleDress_Eyes != "-")
+				{
+					_resourceLoader.LoadResource("Animation_Cloth", "Animation/Cloth/"+GloableData.MoleDress_Eyes+".swf", function(evt:Event)
+					{
+						 _playerAvatar.OnClothLoaded(evt.target.content as IClothAnimation);
+					},false,"NULL",true);
+				}
+				if (GloableData.MoleDress_Hand != "-")
+				{
+					_resourceLoader.LoadResource("Animation_Cloth", "Animation/Cloth/"+GloableData.MoleDress_Hand+".swf", function(evt:Event)
+					{
+						 _playerAvatar.OnClothLoaded(evt.target.content as IClothAnimation);
+					},false,"NULL",true);
+				}
+				if (GloableData.MoleDress_Hat != "-")
+				{
+					_resourceLoader.LoadResource("Animation_Cloth", "Animation/Cloth/"+GloableData.MoleDress_Hat+".swf", function(evt:Event)
+					{
+						 _playerAvatar.OnClothLoaded(evt.target.content as IClothAnimation);
+					},false,"NULL",true);
+				}
+				if (GloableData.MoleDress_Necklace != "-")
+				{
+					_resourceLoader.LoadResource("Animation_Cloth", "Animation/Cloth/"+GloableData.MoleDress_Necklace+".swf", function(evt:Event)
 					{
 						 _playerAvatar.OnClothLoaded(evt.target.content as IClothAnimation);
 					},false,"NULL",true);
@@ -259,6 +292,13 @@ package com.lele.Manager
 					startUserInfoPanel.LOADSTARTAPP_useUI = false;
 					startUserInfoPanel.LOADSTARTAPP_params = null;
 					_repoter.OnReport(startUserInfoPanel);
+					break;
+				}
+				case PLC_Player_ManagerEvent.LOCALMAPCLICKED:
+				{
+					var mbcG:Player_Game_ManagerEvent = new Player_Game_ManagerEvent(Player_Game_ManagerEvent.LOCALMAPCLICKED);
+					mbcG.LOCALMAPCLICKED_position =event.LOCALMAPCLICKED_position;
+					_repoter.OnReport(mbcG);
 					break;
 				}
 			}
@@ -563,17 +603,23 @@ class NetPlayerUnit implements IReport//玩家单元
 		{
 			(_unitDressLoaders[a] as Loader).unloadAndStop(true);
 		}
-		if (_dress.split("|")[5] != "-")
+		var dressTemp:Array = _dress.split("|");
+		for (var a:int = 0; a < dressTemp.length-1; a++ )
 		{
-			var clothLoader:Loader = new Loader();
-			clothLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, function(evt:Event) 
+			if (dressTemp[a] != "-")
 			{
-				_unitController._netAvatar.OnClothLoaded(evt.target.content as IClothAnimation);
-			});
-			var urlRequest:URLRequest = new URLRequest( "Animation/Cloth/" + _dress.split("|")[5] + ".swf");
-			clothLoader.load(urlRequest);
-			_unitDressLoaders[5] = clothLoader;
+				var clothLoader:Loader = new Loader();
+				clothLoader.contentLoaderInfo.addEventListener(Event.COMPLETE,OnDressLoaded);
+				var urlRequest:URLRequest = new URLRequest( "Animation/Cloth/" + dressTemp[a] + ".swf");
+				clothLoader.load(urlRequest);
+				_unitDressLoaders[a] = clothLoader;
+			}
 		}
+	}
+	private function OnDressLoaded(evt:Event)
+	{
+		_unitController._netAvatar.OnClothLoaded(evt.target.content as IClothAnimation);
+		evt.target.removeEventListener(Event.COMPLETE, OnDressLoaded);
 	}
 	public function RefreshDress(dressStr:String)
 	{

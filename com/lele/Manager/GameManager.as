@@ -1,5 +1,6 @@
 ﻿package com.lele.Manager
 {
+	import com.lele.Container.ActivityContainer;
 	import com.lele.Container.AppContainer;
 	import com.lele.Container.ContainerBase;
 	import com.lele.Controller.Avatar.Events.NetWorkController_NetPlayerUnit_Event;
@@ -58,13 +59,13 @@
 		private var _uiContainer:Sprite;
 		private var _mapsContainer:Sprite;
 		private var _appContainer:AppContainer;
-		private var _movieContainer:ContainerBase;
+		private var _movieContainer:ActivityContainer;
 		private var _effectContainer:EffectContainer;
 		private var _uiHighContainer:Sprite;//主要是加载进度条
 		private var _interactContainer:InteractContainer;
 		private var _debugContainer:Sprite;
 		//网络配置
-		private var _ip:String="192.168.1.7"; //"115.159.27.206"
+		private var _ip:String="127.0.0.1"; //"115.159.27.206"
 		private var _port:int = 51888;
 		//debug窗口
 		private var _textField:TextField;
@@ -80,18 +81,26 @@
 		{	
 			_eventDispatcher = this;
 			
+			GloableData.MaxRoadMapSize = new Point(1920, 1920);
+			GloableData.FocalPoint = new Point(960 / 2, 540 / 2);
+			GloableData.AvatarPosition = new Point(0, 0);
+			GloableData.MapOffSetX = 0;
+			GloableData.MapOffSetY = 0;
 			GloableData.Environment = "net";
 			GloableData.HasLogin = false;
 			GloableData.CurrentMap = "Map001";
 			GloableData.CurrentWeather = "Sun";
 			GloableData.CurrentWeatherStrength = 0;
-			GloableData.Version = "0.5";
+			GloableData.Version = "0.5.3";
 			GloableData.MasterMode = true;
 			GloableData.VipNetEnable = true;
 			GloableData.ActivityConditionTime = 500;
+			GloableData.ThrowItemHurt = 0.1;
 			if (GloableData.Environment == "net")
 			{
 				_ip = "121.42.202.168";
+				//加载安全策略文件
+				//Security.loadPolicyFile("http://"+_ip+"/crossdomain.xml");
 			}
 						
 			_uiContainer = new Sprite();//四只容器管理不同层次
@@ -99,7 +108,7 @@
 			_effectContainer = new EffectContainer();
 			_uiHighContainer = new Sprite();
 			_appContainer = new AppContainer();//应用层
-			_movieContainer = new ContainerBase();
+			_movieContainer = new ActivityContainer();
 			_debugContainer = new Sprite();
 			_interactContainer = new InteractContainer();//交互提示tip
 			
@@ -149,14 +158,8 @@
 			_appManager.LoadStartApp(AppDataLink.GetUrlByName("StartApp"), _appContainer.GetContainer());
 			_appManager.LoadApp(AppDataLink.GetUrlByName("CreateMoleApp"), _appContainer.GetContainer());
 			
-			//延迟连接
-			var tempTimer:Timer = new Timer(400, 1);
-			tempTimer.addEventListener(TimerEvent.TIMER,OnConnect);
-			//tempTimer.start();
-			
-			//var clock:Timer = new Timer(4000, 1);
-			//clock.addEventListener(TimerEvent.TIMER, OnLogin);
-			//clock.start();
+			//预连接
+			_netManager.Connect();
 			//接口
 			_iCommand = this;
 		}
@@ -324,6 +327,7 @@
 					}
 					case App_Game_ManagerEvent.LOGIN://直接连接并尝试登录,远程挂起等待二次登录
 					{
+						_netManager.DisConnect();//之前预连接
 						_netManager.Connect();
 						GloableData.TempID = (evt as App_Game_ManagerEvent).LOGIN_id;
 						GloableData.TempPWD = (evt as App_Game_ManagerEvent).LOGIN_pwd;
@@ -334,6 +338,7 @@
 					}
 					case App_Game_ManagerEvent.CREATACCOUNT:
 					{
+						_netManager.DisConnect();//之前预连接
 						_netManager.Connect();
 						GloableData.TempPWD = (evt as App_Game_ManagerEvent).CREATACCOUNT_pwd;
 						var delate:Timer = new Timer(2000, 1);
@@ -484,7 +489,7 @@
 					case Net_Game_ManagerEvent.LOGINRESULT:
 					{
 						TextFieldHandle("登录信息:");
-						if ((evt as Net_Game_ManagerEvent).LOGINRESULT_result == "true")
+						if ((evt as Net_Game_ManagerEvent).LOGINRESULT_result == "2")
 						{
 							TextFieldHandle("登录成功!");
 							GloableData.HasLogin = true;
@@ -513,8 +518,24 @@
 							appBack.ARGTOAPP_GAME_name = "LoginPanelApp";
 							appBack.ARGTOAPP_GAME_args = tempArray;
 							_appManager.OnReceive(appBack);
-							ApplicationManager.GetIDialog().ShowDialog("emoy", "sad", "登录失败，用户名或密码错误!", null);
-							TextFieldHandle("登录失败，用户名或密码错误");
+							var str:String = "";
+							switch((evt as Net_Game_ManagerEvent).LOGINRESULT_result)
+							{
+								case "0":
+									str = "登陆请求错误，我也不知道这是什么造成的！。";
+									break;
+								case "1":
+									str = "你的账号已经登陆了，有可能是服务器坏了。";
+									break;
+								case "3":
+									str = "你的游戏版本和目前服务器支持的版本不符，清空浏览器缓存试试!";
+									break;
+								case "4":
+									str = "账号或密码错误，重新输入试试!";
+									break;
+							}
+							ApplicationManager.GetIDialog().ShowDialog("emoy", "sad", str, null);
+							TextFieldHandle(str);
 						}
 						return;
 					}
@@ -649,7 +670,7 @@
 		private function DelateCreatAccount(evt:TimerEvent)
 		{
 			CreatAccount(GloableData.TempPWD);
-			(evt.target as Timer).removeEventListener(TimerEvent.TIMER, DelateLogin);
+			(evt.target as Timer).removeEventListener(TimerEvent.TIMER, DelateCreatAccount);
 		}
 		private function CreatAccount(pwd:String)
 		{
@@ -681,6 +702,9 @@
 		{
 			_appManager.LoadStartApp(AppDataLink.GetUrlByName("FriendsApp"), _appContainer.GetContainer());//加载聊天玩家信息应用组件
 			_appManager.LoadStartApp(AppDataLink.GetUrlByName("LittleNoteApp"), _appContainer.GetContainer());//加载小纸条基础应用组件
+			//临时代码
+			_acitvityManager.LoadStartActivity("Activity/AConfig053.xml");
+			//临时代码
 		}
 		private function ChangeMap(target:String,spawnPoing:Point)
 		{
@@ -725,10 +749,12 @@
 		{
 			this.addChild(_mapsContainer);
 			this.addChild(_uiContainer);
-			this.addChild(_appContainer);
+			//appContainerUsed to here
+			
 			this.addChild(_effectContainer);
 			this.addChild(_uiHighContainer);
 			this.addChild(_movieContainer);
+			this.addChild(_appContainer);
 			this.addChild(_interactContainer);
 			this.addChild(_debugContainer);
 		}
@@ -857,6 +883,62 @@
 			netAcEvt.NETDOACTION_GAME_name = ActionSuggest.SuggestAction(args[0]);
 			netAcEvt.NETDOACTION_GAME_dir = args[1];
 			_netManager.OnReceive(netAcEvt);
+		}
+		public function InitMisDialog(args:Array)//icoUrl:Array,place:Array, name:String, msg:Array, options:Array, callBacks:Array
+		{
+			_acitvityManager.InitMisDialog(args[0], args[1], args[2], args[3], args[4], args[5],args[6]);
+		}
+		public function ShowMisDialog(args:Array = null)//显示dialog
+		{
+			_acitvityManager.ShowMisDialog();
+		}
+		public function HideMisDialog(args:Array = null)//隐藏dialog
+		{
+			_acitvityManager.HideMisDialog();
+		}
+		public function DisposeMisDialog(args:Array = null)//销毁dialog
+		{
+			_acitvityManager.DisposeMisDialog();
+		}
+		public function TurnDark(args:Array = null)//画面变暗
+		{
+			_effectContainer.TurnDark();
+		}
+		public function TurnBright(args:Array = null)//画面变亮
+		{
+			_effectContainer.TurnBright();
+		}
+		public function ShowToolBar(args:Array = null)
+		{
+			_uiManager.ShowToolBar();
+		}
+		public function HideToolBar(args:Array = null)
+		{
+			_uiManager.HideToolBar();
+		}
+		public function ShowDialog(args:Array)// type:emoy mis   url:/emo:  txt: callBack:
+		{
+			_appManager.ShowDialog(args);
+		}
+		public function UpdateMapPosition(args:Array = null)
+		{
+			_mapManager.UpdateMapPosition();
+		}
+		public function AttachTo(args:Array) // sp:sprite id:string
+		{
+			_playerManager.AttachTo(args[0], args[1]);
+		}
+		public function GetNetPort(args:Array):String  //callbackFunction
+		{
+			return _netManager.GetPrivateNetPort(args[0]);
+		}
+		public function NetSend(args:Array) //(evtName:String, length:String, pv:String, id:String)
+		{
+			_netManager.PrivateSendStr(args[0], args[1], args[2], args[3]);
+		}
+		public function ReleaseNetPort(args:Array) //id:String
+		{
+			_netManager.Release(args[0]);
 		}
 	}
 }

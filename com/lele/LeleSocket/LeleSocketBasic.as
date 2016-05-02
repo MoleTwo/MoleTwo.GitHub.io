@@ -27,17 +27,25 @@ package com.lele.LeleSocket
 			_socket = new Socket();
 			_onSocketClose = onSocketClose;
 			_onCommand = onCommand;
+			_socket.addEventListener(Event.CONNECT, OnConnect);
+			_socket.addEventListener(Event.CLOSE, OnClose);
+			_socket.addEventListener(ProgressEvent.SOCKET_DATA, OnDataEnter);
+			_socket.addEventListener(IOErrorEvent.IO_ERROR, OnSocketIOError);
 		}
 		
 		public function Connect(IP:String, port:int)
 		{
 			_remoteIP = IP;
 			_remotePort = port;
-			_socket.addEventListener(Event.CONNECT, OnConnect);
-			_socket.addEventListener(Event.CLOSE, OnClose);
-			_socket.addEventListener(ProgressEvent.SOCKET_DATA, OnDataEnter);
-			_socket.addEventListener(IOErrorEvent.IO_ERROR, OnSocketIOError);
 			_socket.connect(_remoteIP, _remotePort);
+		}
+		public function DisConnect()
+		{
+			try
+			{
+				_socket.close();
+			}
+			catch(er:Error){}
 		}
 		public function Send(message:String)
 		{

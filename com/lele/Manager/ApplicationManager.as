@@ -1,5 +1,6 @@
 package com.lele.Manager
 {
+	import com.lele.Data.GloableData;
 	import com.lele.Manager.Interface.IApplicationManager;
 	import com.lele.Manager.Interface.IApplyAppContainer;
 	import com.lele.Manager.Interface.IDialog;
@@ -55,7 +56,10 @@ package com.lele.Manager
 			try
 			{
 				GetAppUnitByUrl(AppDataLink.GetUrlByName("Dialog"))._AppContainer = _applyContainer.GetAppContainer();
-				GetAppUnitByUrl(AppDataLink.GetUrlByName("Dialog")).StartAppMultiply(arg);
+				if(arg.length==1&&arg[0] is Array)
+					GetAppUnitByUrl(AppDataLink.GetUrlByName("Dialog")).StartAppMultiply(arg[0]);
+				else
+					GetAppUnitByUrl(AppDataLink.GetUrlByName("Dialog")).StartAppMultiply(arg);
 			}
 			catch (er:Error) { trace(er.message);//资源未加载完
 			}
@@ -246,7 +250,7 @@ package com.lele.Manager
 						ot.ONTHROWITEM_actionDir = event.ONTHROWITEM_actionDir;
 						ot.ONTHROWITEM_actionName = event.ONTHROWITEM_actionName;
 						ot.ONTHROWITEM_aimStyle = event.ONTHROWITEM_aimStyle;
-						ot.ONTHROWITEM_blood = event.ONTHROWITEM_blood;
+						ot.ONTHROWITEM_blood = GloableData.ThrowItemHurt;
 						ot.ONTHROWITEM_itemStyle = event.ONTHROWITEM_itemStyle;
 						_report.OnReport(ot);
 						return;

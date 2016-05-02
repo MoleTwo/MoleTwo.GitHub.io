@@ -67,6 +67,15 @@ package com.lele.Manager
 			_loadingBarContainer = container;
 		}
 		
+		public function ShowToolBar()
+		{
+			GetUIUnitByURL("UI/ToolBar.swf").Show();
+		}
+		public function HideToolBar()
+		{
+			GetUIUnitByURL("UI/ToolBar.swf").Hide();
+		}
+		
 		public function OnPostProgess(evt:UI_Game_ManagerEvent)
 		{
 			if (evt._type == "MAP")
@@ -285,5 +294,17 @@ class UIUnit extends Sprite//UI单元。包含了UI的存在层次和UI数据
 	public function get IsStarted():Boolean
 	{
 		return _isStarted;
+	}
+	public function Hide()
+	{
+		_UIContainer.alpha = 0;
+		_UIContainer.mouseEnabled = false;
+		_UIContainer.mouseChildren = false;
+	}
+	public function Show()
+	{
+		_UIContainer.alpha = 1;
+		_UIContainer.mouseEnabled = true;
+		_UIContainer.mouseChildren = true;
 	}
 }

@@ -44,6 +44,7 @@ package com.lele.LeleSocket
 	//ChangeDress,HENHSC//改变着装
 	//NChangeDress,id,dress//网络玩家变装
 	//ShowDialog,mood,msg//
+	//Blood num id
 	public class EventCommandConver 
 	{
 		
@@ -167,6 +168,11 @@ package com.lele.LeleSocket
 					resultEvt = new NetData_Net_ManagerEvent(NetData_Net_ManagerEvent.SHOWDIALOG);
 					resultEvt.SHOWDIALOG_mood = command.GetValueByName("mood");
 					resultEvt.SHOWDIALOG_msg = command.GetValueByName("msg");
+					break;
+				case "Blood":
+					resultEvt = new NetData_Net_ManagerEvent(NetData_Net_ManagerEvent.BLOOD);
+					resultEvt.BLOOD_id = command.GetValueByName("id");
+					resultEvt.BLOOD_num = command.GetValueByName("num");
 					break;
 			}
 			return resultEvt;

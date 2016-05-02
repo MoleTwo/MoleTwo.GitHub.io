@@ -1,6 +1,7 @@
 package com.lele.Manager
 {
 	import com.lele.LeleSocket.Param;
+	import com.lele.Manager.Events.APIEvent;
 	import com.lele.Manager.Interface.IPrivateNetWork;
 	import com.lele.Plugin.GUID.Guid;
 	import com.lele.LeleSocket.Command;
@@ -14,6 +15,7 @@ package com.lele.Manager
 	import com.lele.Data.GloableData;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.filters.GradientGlowFilter;
 	/**
 	 * ...
 	 * @author Lele
@@ -227,6 +229,13 @@ package com.lele.Manager
 					ApplicationManager.GetIDialog().ShowDialog("emoy", tempEvt.SHOWDIALOG_mood, tempEvt.SHOWDIALOG_msg, null);
 					break;
 				}
+				case NetData_Net_ManagerEvent.BLOOD:
+				{
+					var apiEvt:APIEvent = new APIEvent(APIEvent.OnSetBlood);
+					var obj:Object = new Object();
+					apiEvt.data = tempEvt.BLOOD_id+";"+tempEvt.BLOOD_num;
+					GameManager.GetEventDispatcher().dispatchEvent(apiEvt);
+				}
 			}
 			_repoter.OnReport(toGameManger);
 		}
@@ -237,6 +246,10 @@ package com.lele.Manager
 		public function Connect()
 		{
 			_leleSocket.Connect(_serverIP, _serverPort);
+		}
+		public function DisConnect()
+		{
+			_leleSocket.DisConnect();
 		}
 		public function OnReceive(evt:Event)
 		{
@@ -269,6 +282,13 @@ package com.lele.Manager
 			}
 		}
 		
+		public function PrivateSendStr(evtName:String, length:String, pv:String, id:String) //das;asd;asd;adss
+		{
+			var pack:String = "<" + evtName+";" + length;
+			pack += ";"+pv;
+			pack += ";port;" + GetPortPair(id).port.toString() + ">";
+			_leleSocket.Send(pack);
+		}
 		public function PrivateSend(evtName:String, paramName:Array, paramValue:Array, id:String)
 		{
 			var pack:String = "<" + evtName+";"+(paramName.length+1).toString();

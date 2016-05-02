@@ -3,6 +3,7 @@ package com.lele.Manager
 	import com.lele.Controller.Avatar.Enum.AvatarState;
 	import com.lele.Data.IClothAnimation;
 	import com.lele.Data.IThrowItemAnimationData;
+	import com.lele.Manager.Events.APIEvent;
 	import com.lele.Map.ThrowItemBase;
 	import com.lele.MathTool.LeleMath;
 	import com.lele.Data.GloableData;
@@ -34,7 +35,7 @@ package com.lele.Manager
 	 * @author Lele
 	 */
 	public class PlayerManager extends Sprite implements IReport
-	{
+	{	
 		private var _chatStyle:Class;
 		private var _resourceLoader:IResourceLoader;
 		private var _repoter:IReport;
@@ -64,6 +65,7 @@ package com.lele.Manager
 			_stateCheckTimer.start();
 			_playerController.GetNetAvatarArray = GetNetAvatars;
 		}
+		
 		public function get playerController():PlayerController
 		{
 			return _playerController;
@@ -88,11 +90,21 @@ package com.lele.Manager
 		{
 			if(_playerController!=null)
 			_playerController.Reset();
+			/*var playerAddEvt:APIEvent = new APIEvent(APIEvent.OnPlayerAdded);
+			playerAddEvt.data = GloableData.TempID;
+			GameManager.GetEventDispatcher().dispatchEvent(playerAddEvt);*/
 		}
 		
 		public function MoveTo(po:Point)
 		{
 			_playerController.MoveTo(po);
+		}
+		public function AttachTo(sp:Sprite, target:String)
+		{
+			trace(sp);
+			if (target == GloableData.TempID) { _playerAvatar.AddtoOtherLayer(sp); return; }
+			var iav:IAvatar = GetNetAvatarByID(target);
+			if (iav != null) { iav.AddtoOtherLayer(sp); }
 		}
 		private function OnLoadComplete(evt:Event)
 		{
@@ -228,7 +240,8 @@ package com.lele.Manager
 			addto.ADDITEMTOMAPFRONT_sprite = mc;
 			_repoter.OnReport(addto);
 		}
-		private function CheckAndDoAction(exp:Point, action:String, dir:String)
+		//撞击位置Avatar做动作
+		private function CheckAndDoAction(exp:Point, action:String, dir:String,hurt:Number=0)
 		{
 			for (var a:int = 0; a < _multiplyPlayer.length; a++ )
 			{
@@ -251,6 +264,10 @@ package com.lele.Manager
 				{
 					if (LeleMath.CheckArea(exp.y, _playerAvatar.A_Y - _playerAvatar.Avatar.height / 2, _playerAvatar.A_Y + _playerAvatar.Avatar.height / 2))
 					{
+						//这里hurt代码,触发被打击到事件
+						var apiEvent:APIEvent = new APIEvent(APIEvent.OnHurt);
+						apiEvent.data = hurt;
+						GameManager.GetEventDispatcher().dispatchEvent(apiEvent);
 						_playerAvatar.DoAction(action, dir);
 					}
 				}
@@ -318,8 +335,8 @@ package com.lele.Manager
 						//创建投掷物品实例
 						var itemStyle:ThrowItemBase = _throwItemAnimationData.GetThrowItemByName((recEvt as Player_Game_ManagerEvent).ONTHROWITEM_GAME_itemStyle);
 						//3级回调
-						var tempFunc3:Function=function(position:Point){
-							CheckAndDoAction(position, (recEvt as Player_Game_ManagerEvent).ONTHROWITEM_GAME_actionName, (recEvt as Player_Game_ManagerEvent).ONTHROWITEM_GAME_actionDir);
+						var tempFunc3:Function = function(position:Point) {
+							CheckAndDoAction(position, (recEvt as Player_Game_ManagerEvent).ONTHROWITEM_GAME_actionName, (recEvt as Player_Game_ManagerEvent).ONTHROWITEM_GAME_actionDir,(recEvt as Player_Game_ManagerEvent).ONTHROWITEM_GAME_blood);
 						}
 						//设置回调
 						var tempFunc:Function = function(position:Point):void
@@ -348,8 +365,8 @@ package com.lele.Manager
 					}
 					else
 					{
-						var throwCallback:Function=function(position:Point){
-							CheckAndDoAction(position, (recEvt as Player_Game_ManagerEvent).ONTHROWITEM_GAME_actionName, (recEvt as Player_Game_ManagerEvent).ONTHROWITEM_GAME_actionDir);
+						var throwCallback:Function = function(position:Point) {
+							CheckAndDoAction(position, (recEvt as Player_Game_ManagerEvent).ONTHROWITEM_GAME_actionName, (recEvt as Player_Game_ManagerEvent).ONTHROWITEM_GAME_actionDir,(recEvt as Player_Game_ManagerEvent).ONTHROWITEM_GAME_blood);
 						}
 						if (GetPlayerByID((recEvt as Player_Game_ManagerEvent).ONTHROWITEM_GAME_owner).GetAvatarState() == AvatarState.SWIM)
 						{
@@ -381,6 +398,9 @@ package com.lele.Manager
 				{
 					for (var a:int = 0; a < _multiplyPlayer.length; a++ )
 					{
+						var apiEvt:APIEvent = new APIEvent(APIEvent.OnPlayerRemove);
+						apiEvt.data = ((_multiplyPlayer[a] as NetPlayerUnit).PlayerID);
+						GameManager.GetEventDispatcher().dispatchEvent(apiEvt);
 						(_multiplyPlayer[a] as NetPlayerUnit).Clean();
 					}
 					_multiplyPlayer = new Array();
@@ -413,10 +433,13 @@ package com.lele.Manager
 				{
 					try
 					{
-					var tempUnit:NetPlayerUnit = GetPlayerByID((recEvt as Player_Game_ManagerEvent).REMOVENETPLAYER_GAME_ID);
-					var toGame:Player_Game_ManagerEvent = new Player_Game_ManagerEvent(Player_Game_ManagerEvent.CALLMAPREMOVENETPLAYER);
-					toGame.CALLMAPREMOVENETPLAYER_avatar = tempUnit.Avatar;
-					_repoter.OnReport(toGame);
+						var tempUnit:NetPlayerUnit = GetPlayerByID((recEvt as Player_Game_ManagerEvent).REMOVENETPLAYER_GAME_ID);
+						var toGame:Player_Game_ManagerEvent = new Player_Game_ManagerEvent(Player_Game_ManagerEvent.CALLMAPREMOVENETPLAYER);
+						toGame.CALLMAPREMOVENETPLAYER_avatar = tempUnit.Avatar;
+						_repoter.OnReport(toGame);
+						var apiEvt:APIEvent = new APIEvent(APIEvent.OnPlayerRemove);
+						apiEvt.data = tempUnit.PlayerID;
+						GameManager.GetEventDispatcher().dispatchEvent(apiEvt);
 					}
 					catch (er:Error)
 					{
@@ -474,6 +497,7 @@ import com.lele.Controller.NetWorkController;
 import com.lele.Data.FriendDataUnit;
 import com.lele.Data.IAnimationData;
 import com.lele.Data.IClothAnimation;
+import com.lele.Manager.Events.APIEvent;
 import com.lele.Manager.Events.Player_Game_ManagerEvent;
 import com.lele.Manager.Interface.IReport;
 import com.lele.Data.GloableData;
@@ -481,6 +505,7 @@ import flash.display.Loader;
 import flash.events.Event;
 import flash.geom.Point;
 import flash.net.URLRequest;
+import com.lele.Manager.GameManager;
 
 class NetPlayerUnit implements IReport//玩家单元
 {
@@ -594,6 +619,13 @@ class NetPlayerUnit implements IReport//玩家单元
 			_repoter.OnReport(evtToStart);
 			
 			LoadDress();
+			
+			//
+			//添加网络玩家事件触发,这次是因为AcivityManager添加
+			//
+			var netAddevt:APIEvent = new APIEvent(APIEvent.OnPlayerAdded);
+			netAddevt.data = _playerID;
+			GameManager.GetEventDispatcher().dispatchEvent(netAddevt);
 		}
 	}
 	///测试2016 1 23

@@ -17,6 +17,8 @@ package com.lele.Link
 		public static const Map017MediaData = "Sound/Map017MediaData.swf";
 		public static const Map019MediaData = "Sound/Map019MediaData.swf";
 		public static const Map022MediaData = "Sound/Map022MediaData.swf";
+		public static const Map999MediaData = "Sound/Map999MediaData.swf";
+		public static const Map700MediaData = "Sound/Map700MediaData.swf";
 		
 		public static function GetUrlByName(name:String)
 		{
@@ -66,7 +68,14 @@ package com.lele.Link
 				{
 					return Map022MediaData;
 				}
-				
+				case "Map999MediaData":
+				{
+					return Map999MediaData;
+				}
+				case "Map700MediaData":
+				{
+					return Map700MediaData;
+				}
 			}
 		}
 		

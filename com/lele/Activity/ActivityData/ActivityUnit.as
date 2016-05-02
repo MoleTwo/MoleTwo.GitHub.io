@@ -1,6 +1,7 @@
 ﻿package com.lele.Activity.ActivityData
 {
 	import com.lele.Activity.Interface.IActivityUnitFuncer;
+	import com.lele.Activity.Interface.INpcDialog;
 	import com.lele.Data.GloableData;
 	import com.lele.Manager.Events.APIEvent;
 	import com.lele.Activity.Interface.IActivityManagerFuncer;
@@ -19,17 +20,20 @@
     public class ActivityUnit implements IActivityUnitFuncer
     {
 		public var _lesp:LespSpace;
+		public var _IMisDialog:INpcDialog;
 		public var _Enable:Boolean;//标识活动是否开始
 		public var _ValueMap:Object;
         public var _ActivityManager:IActivityManagerFuncer;
         public var _ResLoader:IResourceLoader;
         public var _LoadLefts:int;
         public var _loaderUnits:Array;
+		public var _PreLoadUnits:Array;
         public var _Arts:Array;
         public var _Loader:URLLoader;
         public var _XML:XML;
         public var _Config:Config;
         public var _Includes:Array;
+		public var _PreLoad:Array;
         public var _Entrances:Array;
         public var _Step:Array;
 		public var _Init:String;//初始化语句
@@ -44,18 +48,24 @@
 			_ValueMap = new Object();
 			_ActivityManager = actFuncer;
             _loaderUnits = new Array();
+			_PreLoadUnits = new Array();
             _ResLoader = resLoader;
             _LoadLefts = 0;
             _Arts = new Array();
             _Loader = new URLLoader();
 			
 			_lesp.LoadObj(this as IActivityUnitFuncer);
-			_lesp.LoadObj(actFuncer);
 			_lesp.LoadObj(GameManager.GetICommand());
 			_CurrentStep = "-1";
         }
 		
 		///IActivityUnitFuncer
+		public function StartActivity(args:Array) //url
+		{
+			var str:String = args[0];
+			str = str.charAt(0) == "@"?_Config.Root + str.substr(1, str.length):str;
+			_ActivityManager.LoadStartActivity(str);
+		}
 		public function NextStep(args:Array = null)
 		{
 			var nextStep:String;
@@ -64,6 +74,7 @@
 			if (next == null) { return; }
 			next.Start(GloableData.ActivityConditionTime);
 			_CurrentStepObj = next;
+			_CurrentStep = String(int(_CurrentStep) + 1);
 		}
 		public function GotoStep(args:Array)
 		{
@@ -71,6 +82,7 @@
 			if (next == null) { return; }
 			if(_CurrentStepObj!=null)
 				_CurrentStepObj.Stop();
+			_CurrentStep = args[0];
 			next.Start(GloableData.ActivityConditionTime);
 		}
 		public function Finish(args:Array = null)
@@ -79,6 +91,52 @@
 			if (_CurrentStepObj != null) { _CurrentStepObj.Stop(); }
 			_lesp.Clean();
 			Clean();
+		}
+		public function InitMisDialog(args:Array)//icoUrl:Array,place:Array, name:String, msg:String, msgCallBack:Func, options:Array, callBacks:Array
+		{
+			var array:Array = new Array();
+			for (var a:int = 0; a < (args[6] as Array).length; a++)
+			{
+				array.push(_lesp.ExecFunc("#(GenerateFunction " + (args[6] as Array)[a] + ")"));
+			}
+			args[6] = array;
+			args[4] = _lesp.ExecFunc("#(GenerateFunction " + (args[4]) + ")");
+			_IMisDialog.Init(args[0], args[1], args[2], args[3], args[4], args[5],args[6]);
+		}
+		public function ShowMisDialog(args:Array = null)//显示dialog
+		{
+			_IMisDialog.Show();
+		}
+		public function HideMisDialog(args:Array = null)//隐藏dialog
+		{
+			_IMisDialog.Hide();
+		}
+		public function DisposeMisDialog(args:Array = null)//销毁dialog
+		{
+			_IMisDialog.Dispose();
+		}
+		public function ShowBg(args:Array)//显示背景
+		{
+			_ActivityManager.ShowBg(args[0]);
+		}
+		public function HideBg(args:Array = null)//隐藏背景
+		{
+			_ActivityManager.HideBg();
+		}
+		public function ShowStyleBar(args:Array=null)
+		{
+			_ActivityManager.ShowStyleBar();
+		}
+		public function HideStyleBar(args:Array=null)
+		{
+			_ActivityManager.HideStyleBar();
+		}
+		public function GetBloodBar(args:Array = null):Object
+		{
+			if(args==null)
+				return _ActivityManager.GetBloodBar();
+			else
+				return _ActivityManager.GetBloodBar(args[0], args[1]);
 		}
 		/////
 		
@@ -97,6 +155,9 @@
 			{
 				(_loaderUnits[a] as ResLoaderUnit).Clean();
 			}
+			_IMisDialog.Hide();
+			_IMisDialog.Dispose();
+			_IMisDialog = null;
 			GameManager.GetEventDispatcher().removeEventListener(APIEvent.OnMapChange, OnMapChanged);
 			_ActivityManager.CleanThis(this);
 		}
@@ -119,33 +180,73 @@
             Init(XML(event.target.data));
             _Loader.removeEventListener(Event.COMPLETE, this.OnLoaded);
             var reg:RegExp = /_.*\./;
-            for (var a:int = 0; a < _Includes.length;a++ )
-            {
-                _LoadLefts++;
-                switch(String(reg.exec(_Includes[a])).substr(1,String(reg.exec(_Includes[a])).length-2))
-                {
-                    case "func":
-                    {
-						_lesp.LoadPack(_Includes[a],LoadedCheck);
-						break;
-                    }
-                    case "art":
-                    {
-                        var loaderUnit:ResLoaderUnit = new ResLoaderUnit(_ResLoader, _Includes[a], _Arts, LoadedCheck);
-						_loaderUnits.push(loaderUnit);
-                        break;
-                    }
-                }
-            }
+			_LoadLefts = 0;
+			if(_Includes!=null)
+				_LoadLefts += _Includes.length;
+			GameManager.GetICommand().TurnDark();
+			if (_PreLoad != null && _PreLoad.length > 0)
+			{
+				_LoadLefts += _PreLoad.length;
+			}
+			if (_LoadLefts == 0) { _LoadLefts = 1; LoadedCheck(); }
+			if (_Includes != null)
+			{
+				for (var a:int = 0; a < _Includes.length;a++ )
+				{
+					switch(String(reg.exec(_Includes[a])).substr(1,String(reg.exec(_Includes[a])).length-2))
+					{
+						case "func":
+						{
+							if (_Includes[a].charAt(0) == "@")
+							{
+								_lesp.LoadPack(_Config.Root+String(_Includes[a]).substr(1,String(_Includes[a]).length), LoadedCheck);
+							}
+							else
+							{
+								_lesp.LoadPack(_Includes[a], LoadedCheck);
+							}
+							break;
+						}
+						case "art":
+						{
+							var loaderUnit:ResLoaderUnit;
+							if (_Includes[a].charAt(0) == "@")
+							{
+								loaderUnit = new ResLoaderUnit(_ResLoader, _Config.Root+String(_Includes[a]).substr(1,String(_Includes[a]).length), _Arts, LoadedCheck);
+							}
+							else
+							{
+								loaderUnit = new ResLoaderUnit(_ResLoader, _Includes[a], _Arts, LoadedCheck);
+							}
+							_loaderUnits.push(loaderUnit);
+							break;
+						}
+					}
+				}
+			}
+			if (_PreLoad != null && _PreLoad.length > 0)
+			{
+				for (var a:int = 0; a < _PreLoad.length; a++ )
+				{
+					var str:String = _PreLoad[a];
+					str = str.charAt(0) == "@"?_Config.Root + str.substr(1, str.length):str;
+					var preLoad:PreLoadUnit = new PreLoadUnit(_ResLoader, str, LoadedCheck);
+					_PreLoadUnits.push(preLoad);
+				}
+			}
             return;
         }
-
+		
+		//开始执行事件
         private function LoadedCheck()
         {
 			_LoadLefts--;
             if (_LoadLefts != 0) { return; }
+			GameManager.GetICommand().TurnBright();
+			_PreLoadUnits = new Array();
 			_Enable = true;
 			OnMapChanged(null);
+			if ((_Entrances == null || _Entrances.length == 0)&&_Step!=null&&_Step.length!=0) { GotoStep([0]); }
 			///load 之后开始执行
         }
 
@@ -159,6 +260,7 @@
 		//当地图改变,这里有错误，还有换图时存在bug
 		public function OnMapChanged(evt:APIEvent)//#(PlayActivity Activity/Story/M10001/M10001.xml)
 		{
+			if (_Entrances == null || _Entrances.length == 0) { return; }
 			for (var a:int = 0; a < _Entrances.length; a++ )
 			{
 				if ((_Entrances[a] as Entrance).Map == GloableData.CurrentMap)
@@ -204,6 +306,7 @@
             _Config.Root = this.Conver(xml.Config.Root);
 			_lesp.ExecFunc("#(SetRoot " + _Config.Root + ")");
             _Includes = new Array();
+			_PreLoad = new Array();
             var counter:int = 0;
             if (String(xml.Include.PackUrl) == "")
             {
@@ -218,6 +321,19 @@
                 }
             }
             counter = 0;
+			if (String(xml.PreLoad.Url) == "")
+			{
+				this._PreLoad = null;
+			}
+			else
+			{
+				while (xml.PreLoad.Url[counter] != undefined)
+				{
+					this._PreLoad.push(xml.PreLoad.Url[counter]);
+					counter++;
+				}
+			}
+			counter = 0;
             this._Entrances = new Array();
             if (String(xml.SetupEntrance.Entrance) == "")
             {
@@ -256,6 +372,7 @@
                     counter++;
                 }
             }
+			_lesp.ExecFunc(_Init);
             return;
         }
 
@@ -295,6 +412,25 @@
             return str;
         }
     }
+}
+
+class PreLoadUnit
+{
+	private var _loader:IResourceLoader;
+	private var _url:String;
+	private var _callBack:Function;
+	
+	function PreLoadUnit(loader:IResourceLoader, url:String, callBack:Function)
+	{
+		_callBack = callBack;
+		_url = url;
+		_loader = loader;
+		_loader.LoadResource("ActivityManager/ActivityUnit", _url, function(evt:Event)
+		{
+			_loader.UnLoadResource("ActivityManager/ActivityUnit", _url);
+			_callBack();
+		}, true, "MAP");
+	}
 }
 
 import flash.events.Event;

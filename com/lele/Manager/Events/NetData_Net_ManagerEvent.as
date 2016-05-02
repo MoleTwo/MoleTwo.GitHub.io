@@ -95,6 +95,10 @@ package com.lele.Manager.Events
 		public var SHOWDIALOG_mood:String;
 		public var SHOWDIALOG_msg:String;
 		
+		public static const BLOOD = "设置血条";
+		public var BLOOD_num:String;
+		public var BLOOD_id:String;
+		
 		public function NetData_Net_ManagerEvent(evtType:String) 
 		{
 			super(evtType);

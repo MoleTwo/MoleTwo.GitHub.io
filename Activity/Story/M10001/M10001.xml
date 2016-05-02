@@ -1,13 +1,32 @@
 <Activity><!--函数获取符号&  函数调用符号#  资源间接地址符号@(资源,返回完整地址)  内建变量获取符号$ 阻碍执行符!紧跟#后面-->
 	<Config>
 		<Root>Activity/Story/M10001/</Root><!--#(PlayActivity Activity/Story/M10001/M10001.xml)-->
-	</Config>
+	</Config><!--#(NULL #(InitMisDialog #(MakeArray Activity/Story/Icons/5_17.swf) #(MakeArray 0) 摩乐乐 测试 #(GenerateFunction #!(NULL)) #(MakeArray) #(MakeArray)) #(ShowMisDialog))-->
 	<Include><!--加@的为以root地址为基准的间接地址，否则是直接地址     包含一些资源文件-->
 		<PackUrl>Activity/Res/test_art.swf</PackUrl>
 		<PackUrl>Activity/Res/Grammar_func.swf</PackUrl>
 	</Include>
-	<Init>#(DefValue Boolean test #(False))</Init>
-	<Finish>#(CloseMp3)</Finish>
+	<PreLoad><!--预加载，如果存在-->
+		<Url>@1.swf</Url>
+		<Url>@2.swf</Url>
+		<Url>@3.swf</Url>
+		<Url>@4.swf</Url>
+		<Url>@5.swf</Url>
+		<Url>@6.swf</Url>
+		<Url>@7.swf</Url>
+		<Url>@8.swf</Url>
+		<Url>@10.png</Url>
+		<Url>@11.png</Url>
+		<Url>@12.png</Url>
+		<Url>Activity/Story/Bg/10005.swf</Url>
+		<Url>Activity/Story/Bg/10006.swf</Url>
+		<Url>Activity/Story/Icons/9_4.swf</Url>
+		<Url>Activity/Story/Icons/5_6.swf</Url>
+		<Url>Activity/Story/Icons/16_3.swf</Url>
+		<Url>Activity/Story/Icons/16_4.swf</Url>
+	</PreLoad>
+	<Init>#(NULL)</Init>
+	<Finish>#(NULL #(HideStyleBar) #(ShowToolBar) #(CloseMp3))</Finish>
 	<SetupEntrance>
 		<Entrance>
 			<Map>Map001</Map><!--区域-->
@@ -20,44 +39,224 @@
 		<Sp>
 			<Id>0</Id>
 			<Condition>#(True)</Condition>
-			<UnFunction>#(PlayMp3 Activity/Res/roco_mp3.mp3 4)</UnFunction>
-			<Function>#(NULL #(SetValue Boolean test #(True)) #(PlayMovie @5.swf #(GenerateFunction #!(GotoStep 1))))</Function>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(Branch #(IsEqual $CurrentMap Map001) #!(NULL #(TurnDark) #(GotoStep 1)) #!(GotoMap Map001 #(MakePoint 600 300) #(GenerateFunction #!(NULL #(TurnDark) #(GotoStep 1))))</Function>
 		</Sp>
 		<Sp>
 			<Id>1</Id><!--c_ 开头的是非nextstep过程-->
-			<Condition>#(CheckBoolean $test)</Condition><!--代表无条件执行--><!--或0-->
+			<Condition>#(True)</Condition><!--代表无条件执行--><!--或0-->
 			<UnFunction>#(NULL)</UnFunction>
-			<Function>#(GotoMap Map002 #(MakePoint 300 300) #(GenerateFunction #!(NULL #(CloseCurrentMapSound) #(PlayMp3 Activity/Res/roco_mp3.mp3 999) #(GotoStep 2))))</Function>
+			<Function>#(NULL #(CloseCurrentMapSound) #(PlayMovie @1.swf #(GenerateFunction #!(NULL #(TurnBright) #(GotoStep 2)))))</Function>
 		</Sp>
 		<Sp>
 			<Id>2</Id>
 			<Condition>#(True)</Condition>
 			<UnFunction>#(NULL)</UnFunction>
-			<Function>#(PlayMovie @1.swf #(GenerateFunction #!(GotoStep 3)))</Function>
+			<Function>#(NULL #(PlayMp3 Activity/Res/BGM_001_mp3.mp3 9999) #(GotoStep 3))</Function>
 		</Sp>
 		<Sp>
 			<Id>3</Id>
 			<Condition>#(True)</Condition>
 			<UnFunction>#(NULL)</UnFunction>
-			<Function>#(PlayMovie @2.swf #(GenerateFunction #!(GotoStep 4)))</Function>
+			<Function>#(NULL #(ShowBg Activity/Story/Bg/10005.swf) #(InitMisDialog #(MakeArray Activity/Story/Icons/9_4.swf) #(MakeArray 1) 菩提 霍霍，这么多年过去了这棵天空树依然是这么参盛，不知道当年那些老朋友如今是否依然安好。 #!(GotoStep 4) #(MakeArray) #(MakeArray)) #(ShowMisDialog))</Function>
 		</Sp>
 		<Sp>
 			<Id>4</Id>
 			<Condition>#(True)</Condition>
 			<UnFunction>#(NULL)</UnFunction>
-			<Function>#(PlayMovie @3.swf #(GenerateFunction #!(GotoStep 5)))</Function>
+			<Function>#(NULL #(InitMisDialog #(MakeArray Activity/Story/Icons/9_4.swf Activity/Story/Icons/5_6.swf) #(MakeArray 0 2) 摩乐乐 啊`大伯是个有故事的人，我要听故事! #!(GotoStep 5) #(MakeArray) #(MakeArray)))</Function>
 		</Sp>
 		<Sp>
 			<Id>5</Id>
 			<Condition>#(True)</Condition>
 			<UnFunction>#(NULL)</UnFunction>
-			<Function>#(PlayMovie @4.swf #(GenerateFunction #!(GotoStep 6)))</Function>
+			<Function>#(InitMisDialog #(MakeArray Activity/Story/Icons/9_4.swf Activity/Story/Icons/5_6.swf) #(MakeArray 0 2) 菩提 霍霍，听故事么？好啊，大伯当年的那些故事，倒是可以跟你们说上一说 #!(GotoStep 6) #(MakeArray) #(MakeArray))</Function>
 		</Sp>
 		<Sp>
 			<Id>6</Id>
 			<Condition>#(True)</Condition>
 			<UnFunction>#(NULL)</UnFunction>
-			<Function>#(GotoMap Map001 #(MakePoint 500 300) #(GenerateFunction #!(Finish)))</Function>
+			<Function>#(InitMisDialog #(MakeArray Activity/Story/Icons/5_6.swf) #(MakeArray 1) 摩乐乐 耶听故事咯听故事咯! #!(GotoStep 7) #(MakeArray) #(MakeArray))</Function>
+		</Sp>
+		<Sp>
+			<Id>7</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(InitMisDialog #(MakeArray Activity/Story/Icons/9_4.swf) #(MakeArray 1) 菩提 那么，从什么时候讲起呢...... #!(GotoStep 8) #(MakeArray) #(MakeArray))</Function>
+		</Sp>
+		<Sp>
+			<Id>8</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(HideMisDialog) #(PlayMovie @2.swf #(GenerateFunction #!(GotoStep 9))))</Function>
+		</Sp>
+		<Sp>
+			<Id>9</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(ShowDialog mis @10.png #(MakeString 大伯开始讲故事啦!这个故事会是什么呢?好好听吧!) #(GenerateFunction #!(NULL #(GotoStep 10))))</Function>
+		</Sp>
+		<Sp>
+			<Id>10</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(ShowBg Activity/Story/Bg/10006.swf) #(InitMisDialog #(MakeArray) #(MakeArray) 强尼 菩提哥，你真是我们的骄傲。 #!(GotoStep 11) #(MakeArray) #(MakeArray)) #(ShowMisDialog))</Function>
+		</Sp>
+		<Sp>
+			<Id>11</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(InitMisDialog #(MakeArray) #(MakeArray) 维尼 是啊，这次的SA特优生称号，必然是菩提你的囊中之物啊，哈哈哈！那可是摩尔学院至高无上的荣誉啊！ #!(GotoStep 12) #(MakeArray) #(MakeArray)))</Function>
+		</Sp>
+		<Sp>
+			<Id>12</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(InitMisDialog #(MakeArray) #(MakeArray) 菩提 哼哼，威廉那个绣花枕头，只会偷懒摆闲，怎么可能是我的对手！ #!(NextStep) #(MakeArray) #(MakeArray)))</Function>
+		</Sp>
+		<Sp>
+			<Id>13</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(InitMisDialog #(MakeArray) #(MakeArray) 菩提 咳咳，不过咱们还是要低调点，让莉莲看到你们这么不淡定，我也会很没面子的。 #!(NextStep) #(MakeArray) #(MakeArray)))</Function>
+		</Sp>
+		<Sp>
+			<Id>14</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(InitMisDialog #(MakeArray) #(MakeArray) 强尼 那又怎样？咱们这是众望所归，莉莲可是我们的院花，不但漂亮，还特别亲切，才不会看上威廉那个草包呢。 #!(NextStep) #(MakeArray) #(MakeArray)))</Function>
+		</Sp>
+		<Sp>
+			<Id>15</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(InitMisDialog #(MakeArray) #(MakeArray) 维尼 嘘，小声点，莉莲来了！ #!(NextStep) #(MakeArray) #(MakeArray)))</Function>
+		</Sp>
+		<Sp>
+			<Id>16</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(InitMisDialog #(MakeArray) #(MakeArray) 菩提 啊，是莉莲！但威廉那个家伙为什么也在？？真是讨厌。 #!(NULL #(HideBg) #(NextStep)) #(MakeArray) #(MakeArray)))</Function>
+		</Sp>
+		<Sp>
+			<Id>17</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(HideMisDialog) #(HideToolBar) #(ShowStyleBar) #(PlayMovie @3.swf #(GenerateFunction #!(NULL #(ShowBg Activity/Story/Bg/10006.swf) #(NextStep)))))</Function>
+		</Sp>
+		<Sp>
+			<Id>18</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(HideStyleBar) #(InitMisDialog #(MakeArray Activity/Story/Icons/16_4.swf) #(MakeArray 1) 摩芬奇 咳咳！孩子们，有件事要向大家宣布 #!(NULL #(NextStep)) #(MakeArray) #(MakeArray)) #(ShowMisDialog))</Function>
+		</Sp>
+		<Sp>
+			<Id>19</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(InitMisDialog #(MakeArray) #(MakeArray) 威廉 尊敬的摩芬奇院长，请问是什么事情呢？ #!(NextStep) #(MakeArray) #(MakeArray)))</Function>
+		</Sp>
+		<Sp>
+			<Id>20</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(InitMisDialog #(MakeArray Activity/Story/Icons/16_4.swf) #(MakeArray 1) 摩芬奇 我们学院来了一位转校生，是一个非常聪明的摩尔。 #!(NextStep) #(MakeArray) #(MakeArray)))</Function>
+		</Sp>
+		<Sp>
+			<Id>21</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(InitMisDialog #(MakeArray Activity/Story/Icons/16_4.swf) #(MakeArray 0) 菩提 转校生？哪里来的啊？ #!(NextStep) #(MakeArray) #(MakeArray)))</Function>
+		</Sp>
+		<Sp>
+			<Id>22</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(InitMisDialog #(MakeArray Activity/Story/Icons/16_3.swf) #(MakeArray 1) 摩芬奇 稍后我会给大家引荐的。你们准备准备，去学校广场集合吧！ #!(NextStep) #(MakeArray) #(MakeArray)))</Function>
+		</Sp>
+		<Sp>
+			<Id>23</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(InitMisDialog #(MakeArray) #(MakeArray) 莉莲 呵呵，又有新同学了呢，好期待的说。 #!(NextStep) #(MakeArray) #(MakeArray)))</Function>
+		</Sp>
+		<Sp>
+			<Id>24</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(HideMisDialog) #(ShowDialog mis @11.png #(MakeString 新来了一个转校生，去学院广场看看吧！) #(GenerateFunction #!(NULL #(HideBg) #(NextStep)))))</Function>
+		</Sp>
+		<Sp>
+			<Id>25</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(GotoMap Map017 #(MakePoint 300 300) #(GenerateFunction #!(NextStep))))</Function>
+		</Sp>
+		<Sp>
+			<Id>26</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(CloseCurrentMapSound) #(ShowBg Activity/Story/Bg/10005.swf) #(InitMisDialog #(MakeArray Activity/Story/Icons/16_3.swf) #(MakeArray 1) 摩芬奇 大家都安静下来！下面，我要宣布一件事情！ #!(NextStep) #(MakeArray) #(MakeArray)) #(ShowMisDialog))</Function>
+		</Sp>
+		<Sp>
+			<Id>27</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(InitMisDialog #(MakeArray Activity/Story/Icons/16_4.swf) #(MakeArray 1) 摩芬奇 从今天起，有一位新同学就要加入我们学院大家庭中—— #!(NextStep) #(MakeArray) #(MakeArray)))</Function>
+		</Sp>
+		<Sp>
+			<Id>28</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(InitMisDialog #(MakeArray) #(MakeArray) 强尼 这家伙看上去土里土气的。 #!(NextStep) #(MakeArray) #(MakeArray)))</Function>
+		</Sp>
+		<Sp>
+			<Id>29</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(InitMisDialog #(MakeArray) #(MakeArray) 维尼 而且还一直缩在院长身后。一看就是个草包！菩提哥，你说是不是？ #!(NextStep) #(MakeArray) #(MakeArray)))</Function>
+		</Sp>
+		<Sp>
+			<Id>30</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(InitMisDialog #(MakeArray) #(MakeArray) 菩提 ...... #!(NextStep) #(MakeArray) #(MakeArray)))</Function>
+		</Sp>
+		<Sp>
+			<Id>31</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(InitMisDialog #(MakeArray) #(MakeArray) 强尼 菩提哥你想什么？ #!(NextStep) #(MakeArray) #(MakeArray)))</Function>
+		</Sp>
+		<Sp>
+			<Id>32</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(InitMisDialog #(MakeArray) #(MakeArray) 菩提 从他的眼神里......我看到了......挑衅。 #!(NextStep) #(MakeArray) #(MakeArray)))</Function>
+		</Sp>
+		<Sp>
+			<Id>33</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(InitMisDialog #(MakeArray) #(MakeArray) 维尼 什么？不会吧？他怎么敢...... #!(NextStep) #(MakeArray) #(MakeArray)))</Function>
+		</Sp>
+		<Sp>
+			<Id>34</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(InitMisDialog #(MakeArray) #(MakeArray) 菩提 我不会看错......哼哼，库拉么......或许，真的是个值得重视的对手呢...... #!(NextStep) #(MakeArray) #(MakeArray)))</Function>
+		</Sp>
+		<Sp>
+			<Id>35</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(HideMisDialog) #(ShowDialog mis @12.png #(MakeString 新来的库拉到底是谁呢？去教室看看他吧。) #(GenerateFunction #!(NextStep))))</Function>
+		</Sp>
+		<Sp>
+			<Id>36</Id>
+			<Condition>#(True)</Condition>
+			<UnFunction>#(NULL)</UnFunction>
+			<Function>#(NULL #(HideBg) #(GotoMap Map001 #(MakePoint 600 300) #(GenerateFunction #!(Finish))))</Function>
 		</Sp>
 	</Step>
 </Activity>

@@ -1,11 +1,18 @@
 package com.lele.Data
 {
+	import flash.geom.Point;
+	import flash.utils.Timer;
 	/**
 	 * ...
 	 * @author Lele
 	 */
 	public class GloableData //这个一定不能放在资源里，否则破坏面向对象
 	{
+		public static var MaxRoadMapSize:Point;
+		public static var FocalPoint:Point;
+		public static var AvatarPosition:Point;
+		public static var MapOffSetX:Number;
+		public static var MapOffSetY:Number;
 		public static var CurrentMap:String;
 		public static var CurrentWeather:String;
 		public static var CurrentWeatherStrength:int;
@@ -20,6 +27,7 @@ package com.lele.Data
 		public static var FriendData:Array;
 		public static var VipNetEnable:Boolean;
 		public static var ActivityConditionTime:int;
+		public static var ThrowItemHurt:Number;
 		
 		//放这里是出于效率而不是结构考虑
 		public static var MoleDress_Hat:String;

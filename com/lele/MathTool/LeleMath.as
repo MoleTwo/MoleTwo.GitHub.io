@@ -1,6 +1,5 @@
-package com.lele.MathTool
+﻿package com.lele.MathTool
 {
-	import flash.concurrent.Mutex;
 	import flash.display.Sprite;
 	import flash.geom.Point;
 	/**

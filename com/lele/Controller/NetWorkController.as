@@ -3,6 +3,7 @@ package com.lele.Controller
 	import com.lele.Controller.Avatar.Events.Avatar_PlayerController_Event;
 	import com.lele.Controller.Avatar.Events.NetWorkController_NetPlayerUnit_Event;
 	import com.lele.Controller.Avatar.Interface.IAvatar;
+	import com.lele.Data.GloableData;
 	import com.lele.Map.BitMapUtil;
 	import com.lele.MathTool.LeleMath;
 	import com.lele.Controller.Avatar.CAvatar;
@@ -74,7 +75,7 @@ package com.lele.Controller
 			_roadMap = roadMap;
 			_preTarget = new Point(_netAvatar.A_X, _netAvatar.A_Y);
 			var colorObj:Object = { canGo:4289555498, notGo:4294967295, special:4278229503 };
-			var bitMapUtil:BitMapUtil = new BitMapUtil(roadMap.Type_mc, 960, 540, 2, colorObj);
+			var bitMapUtil:BitMapUtil = new BitMapUtil(roadMap.Type_mc,  GloableData.MaxRoadMapSize.x, GloableData.MaxRoadMapSize.y, 2, colorObj);
 			_roadFinder = new RoadFinder();
 			bitMapUtil.DrawPixelMap();
 			_roadFinder.CreatRoadDataFromMapData(bitMapUtil);

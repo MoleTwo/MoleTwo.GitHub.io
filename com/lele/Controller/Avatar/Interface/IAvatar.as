@@ -19,6 +19,7 @@
 		function SetComDialog(dialog:Sprite);
 		function ShowDialog(txt:String);
 		function InitAllDress();
+		function AddtoOtherLayer(target:Sprite);
 	}
 	
 }

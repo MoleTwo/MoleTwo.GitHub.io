@@ -29,11 +29,14 @@
 		public function Start(ctime:int)
 		{
 			Stop();
+			
 			timer = new Timer(ctime);
 			
 			timer.addEventListener(TimerEvent.TIMER, Process);
 			
 			timer.start();
+			
+			Process(null);
 		}
 		
 		private function Process(evt:Event)
@@ -47,9 +50,7 @@
 			}
 			else
 			{
-				isProcessing = true;
 				Lesp.ExecFunc(UnFunc);
-				Stop();
 			}
 		}
 		

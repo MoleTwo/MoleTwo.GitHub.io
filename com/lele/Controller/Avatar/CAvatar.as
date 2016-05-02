@@ -60,7 +60,7 @@ package com.lele.Controller.Avatar
 		
 		private var _chatDialog:Sprite;//聊天弹窗
 		private var _nameTxt:TextField;
-		
+				
 		public function Reset()
 		{
 			(_effect.down as MovieClip).stop();
@@ -87,6 +87,11 @@ package com.lele.Controller.Avatar
 			_otherLayer.addChild(_chatDialog);
 			_chatDialog.y = -95;
 		}
+		public function AddtoOtherLayer(target:Sprite)
+		{
+			if (target == null) { return; }
+			_otherLayer.addChildAt(target,0);
+		}
 		
 		public function ShowDialog(txt:String)
 		{
@@ -96,7 +101,7 @@ package com.lele.Controller.Avatar
 		//test Func
 		
 		public function CAvatar(moleAct:Object,resourcePack:IAnimationData,isSelfOwner:Boolean,color:String="white",name:String=null)
-		{
+		{			
 			_timeCounter = new Object();
 			
 			_depth = 0;

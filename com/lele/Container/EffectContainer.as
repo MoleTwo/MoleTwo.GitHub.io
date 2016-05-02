@@ -34,6 +34,52 @@ package com.lele.Container
 			tempContainer.addChild(disp2);
 			_resourceHolder=_screenShooter.ShootScreen(tempContainer);
 		}
+		public function TurnDark()
+		{
+			if (_maskHolder!=null&&_maskHolder.hasEventListener(Event.ENTER_FRAME))
+			{
+				try { _maskHolder.removeEventListener(Event.ENTER_FRAME, OnTurnDark); } catch(er:Error) { }
+				try { _maskHolder.removeEventListener(Event.ENTER_FRAME, OnTurnBright); }catch(er:Error){}
+			}
+			while (_frontDisplay.numChildren > 0) { _frontDisplay.removeChildAt(0); }
+			_maskHolder = new Sprite();
+			_maskHolder.graphics.beginFill(0x000000);
+			_maskHolder.graphics.drawRect(0, 0, 960, 540);
+			_maskHolder.graphics.endFill();
+			_frontDisplay.addChild(_maskHolder);
+			_frontDisplay.alpha = 0;
+			_maskHolder.addEventListener(Event.ENTER_FRAME, OnTurnDark);
+		}
+		private function OnTurnDark(evt:Event)
+		{
+			_frontDisplay.alpha += 0.15;
+			if (_frontDisplay.alpha >= 0.7) 
+			{
+				_frontDisplay.alpha = 0.8;
+				_maskHolder.removeEventListener(Event.ENTER_FRAME, OnTurnDark);
+			}
+		}
+		public function TurnBright()
+		{
+			if (_maskHolder!=null&&_maskHolder.hasEventListener(Event.ENTER_FRAME))
+			{
+				try { _maskHolder.removeEventListener(Event.ENTER_FRAME, OnTurnDark); } catch(er:Error) { }
+				try { _maskHolder.removeEventListener(Event.ENTER_FRAME, OnTurnBright); }catch(er:Error){}
+			}
+			if (_frontDisplay.numChildren < 1) { return; }
+			_maskHolder.addEventListener(Event.ENTER_FRAME, OnTurnBright);
+		}
+		private function OnTurnBright(evt:Event)
+		{
+			_frontDisplay.alpha -= 0.15;
+			if (_frontDisplay.alpha < 0.2)
+			{
+				_frontDisplay.alpha = 0;
+				if(_frontDisplay.contains(_maskHolder))
+					_frontDisplay.removeChild(_maskHolder);
+				_maskHolder.removeEventListener(Event.ENTER_FRAME, OnTurnBright);
+			}
+		}
 		public function UnShowAndTurnDark()
 		{
 			_maskHolder = new Sprite();

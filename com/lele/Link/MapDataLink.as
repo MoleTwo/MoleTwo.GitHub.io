@@ -17,6 +17,8 @@ package com.lele.Link
 		public static const Map017 = "Map/Map017.swf";
 		public static const Map019 = "Map/Map019.swf";
 		public static const Map022 = "Map/Map022.swf";
+		public static const Map999 = "Map/Map999.swf";
+		public static const Map700 = "Map/Map700.swf";
 		
 		public static function GetUrlByName(name:String)
 		{
@@ -65,6 +67,14 @@ package com.lele.Link
 				case "Map022":
 				{
 					return Map022;
+				}
+				case "Map999":
+				{
+					return Map999;
+				}
+				case "Map700":
+				{
+					return Map700;
 				}
 			}
 		}

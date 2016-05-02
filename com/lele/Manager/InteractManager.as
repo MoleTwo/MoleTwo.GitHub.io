@@ -1,5 +1,6 @@
 package com.lele.Manager
 {
+	import com.lele.Data.GloableData;
 	import com.lele.Manager.Interface.IResourceLoader;
 	import flash.display.Loader;
 	import flash.display.MovieClip;
@@ -48,12 +49,13 @@ package com.lele.Manager
 			
 		}
 		
+		//click effect
 		public function OnMapClick(position:Point)
 		{
 			if (_clickStyle == null) { return; }
 			var mc = new _clickStyle();
-			(mc as MovieClip).x = position.x;
-			(mc as MovieClip).y = position.y;
+			(mc as MovieClip).x = position.x+GloableData.MapOffSetX;
+			(mc as MovieClip).y = position.y+GloableData.MapOffSetY;
 			(mc as MovieClip).addFrameScript(6, function()
 			{
 				(mc as MovieClip).stop();
@@ -68,7 +70,7 @@ package com.lele.Manager
 			var sjb:Sprite = new Sprite();//这个过来的sprite有病，会发癫
 			sjb.addChild(style);
 			var _OnClick:Function = function(evt:MouseEvent):void{
-				OnClick(new Point(mouseX,mouseY)); 
+				OnClick(new Point(mouseX-GloableData.MapOffSetX,mouseY-GloableData.MapOffSetY)); 
 				sjb.removeEventListener(MouseEvent.CLICK, _OnClick);
 			}
 			

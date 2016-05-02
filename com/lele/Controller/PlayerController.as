@@ -3,7 +3,9 @@ package com.lele.Controller
 	import adobe.utils.CustomActions;
 	import com.lele.Controller.Avatar.ActionSuggest;
 	import com.lele.Controller.Avatar.Events.Avatar_PlayerController_Event;
+	import com.lele.Data.GloableData;
 	import com.lele.Manager.Events.PLC_Player_ManagerEvent;
+	import com.lele.Manager.GameManager;
 	import com.lele.Map.BitMapUtil;
 	import com.lele.Controller.Avatar.Enum.AvatarState;
 	import com.lele.Controller.Avatar.Interface.IAvatar;
@@ -117,7 +119,7 @@ package com.lele.Controller
 			_roadMap = roadMap;
 			_controlMap = controlMap;
 			var colorObj:Object = { canGo:4289555498, notGo:4294967295, special:4278229503 };
-			var bitMapUtil:BitMapUtil = new BitMapUtil(roadMap.Type_mc, 960, 540, 2, colorObj);
+			var bitMapUtil:BitMapUtil = new BitMapUtil(roadMap.Type_mc, GloableData.MaxRoadMapSize.x, GloableData.MaxRoadMapSize.y, 2, colorObj);
 			bitMapUtil.DrawPixelMap();
 			_roadFinder.CreatRoadDataFromMapData(bitMapUtil);
 			//要开启
@@ -172,6 +174,7 @@ package com.lele.Controller
 		
 		override protected function EveryFrame(evt:Event)//故意留的bug
 		{
+			
 			if (_state==AvatarState.WALK||_state==AvatarState.PLAY||_state==AvatarState.SWIM)//动画都在这
 			{
 				if (_currentTarget == null) { return; }
@@ -221,12 +224,17 @@ package com.lele.Controller
 						_needBrake = false;
 					}
 				}
+				//更新玩家坐标
+				GloableData.AvatarPosition.x = _avatar.Avatar.x;
+				GloableData.AvatarPosition.y = _avatar.Avatar.y;
+				//更新地图坐标
+				GameManager.GetICommand().UpdateMapPosition();
 			}
 			if (_state == AvatarState.IDLE)
 			{//方向不一致才触发
-				if (_rotateAround&&_currentMouseMoleDirection != LeleMath.GetDirection(LeleMath.DealRDifference(LeleMath.GetDigree(new Point(_avatar.A_X, _avatar.A_Y), new Point(mouseX, mouseY)))))
+				if (_rotateAround&&_currentMouseMoleDirection != LeleMath.GetDirection(LeleMath.DealRDifference(LeleMath.GetDigree(new Point(_avatar.A_X+GloableData.MapOffSetX, _avatar.A_Y+GloableData.MapOffSetY), new Point(mouseX, mouseY)))))
 				{
-					_currentMouseMoleDirection = LeleMath.GetDirection(LeleMath.DealRDifference(LeleMath.GetDigree(new Point(_avatar.A_X, _avatar.A_Y), new Point(mouseX, mouseY))));
+					_currentMouseMoleDirection = LeleMath.GetDirection(LeleMath.DealRDifference(LeleMath.GetDigree(new Point(_avatar.A_X+GloableData.MapOffSetX, _avatar.A_Y+GloableData.MapOffSetY), new Point(mouseX, mouseY))));
 					_avatar.DoAction("stand", _currentMouseMoleDirection);
 				}
 			}

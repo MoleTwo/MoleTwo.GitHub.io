@@ -3,6 +3,7 @@ package com.lele.Manager
 	import com.lele.Controller.Avatar.Interface.IAvatar;
 	import com.lele.Controller.PlayerController;
 	import com.lele.Controller.NetWorkController;
+	import com.lele.Data.GloableData;
 	import com.lele.Map.Enum.Weather;
 	import com.lele.Manager.Events.ManagerEventBase;
 	import com.lele.Manager.Events.Map_Game_ManagerEvent;
@@ -11,6 +12,7 @@ package com.lele.Manager
 	import com.lele.Manager.Interface.IResourceLoader; 
 	import com.lele.Plugin.RoadFind.Interface.IRoadFinder;
 	import com.lele.Map.Interface.IMapDocument;
+	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -21,6 +23,7 @@ package com.lele.Manager
 	 */
 	public class MapManager extends Sprite implements IReport
 	{
+		private var _safeRange:Point;
 		private var _currentMapDoc:IMapDocument;
 		private var _currentContainer:Sprite;
 		private var _resourceLoader:IResourceLoader;
@@ -54,7 +57,13 @@ package com.lele.Manager
 		private function OnLoadStartMapComplete(evt:Event)
 		{
 			_currentMapDoc = evt.target.content as IMapDocument;
+			
 			_currentContainer.addChild(evt.target.content);
+			
+			_safeRange = _currentMapDoc.AllRange;
+			
+			_currentContainer.x = 0;
+			_currentContainer.y = 0;
 			
 			var loaded:Map_Game_ManagerEvent = new Map_Game_ManagerEvent(Map_Game_ManagerEvent.MAPLOADED);//回传地图加载完成事件
 			_repoter.OnReport(loaded);
@@ -63,8 +72,25 @@ package com.lele.Manager
 		{
 			_currentMapDoc = evt.target.content as IMapDocument;
 			
+			_safeRange = _currentMapDoc.AllRange;
+			
+			_currentContainer.x = 0;
+			_currentContainer.y = 0;
+			
 			var loaded:Map_Game_ManagerEvent = new Map_Game_ManagerEvent(Map_Game_ManagerEvent.MAPLOADED);//回传地图加载完成事件
 			_repoter.OnReport(loaded);
+		}
+		
+		public function UpdateMapPosition()
+		{
+			var px = _currentContainer.x - ((GloableData.AvatarPosition.x + GloableData.MapOffSetX) - GloableData.FocalPoint.x);
+			var py = _currentContainer.y - ((GloableData.AvatarPosition.y + GloableData.MapOffSetY) - GloableData.FocalPoint.y);
+			if(px<0&&(-px+960)<_safeRange.x)
+				_currentContainer.x =px;
+			if(py<0&&(-py+540)<_safeRange.y)
+				_currentContainer.y =py;
+			GloableData.MapOffSetX = _currentContainer.x;
+			GloableData.MapOffSetY = _currentContainer.y;
 		}
 		
 		public function AddItemToMapFront(sp:Sprite)
@@ -77,7 +103,11 @@ package com.lele.Manager
 		}
 		public function AddPlayerToMap(myAvatar:IAvatar,swapPo:Point,isHit:Boolean,playController:PlayerController)
 		{
-			_currentMapDoc.LoadMap(myAvatar, swapPo,isHit, playController,this);//向本级汇报
+			GloableData.AvatarPosition.x = swapPo.x;
+			GloableData.AvatarPosition.y = swapPo.y;
+			_currentMapDoc.LoadMap(myAvatar, swapPo, isHit, playController, this);//向本级汇报
+			//更新地图坐标
+			UpdateMapPosition();
 		}
 		public function AddNetPlayerToMap(avatar:IAvatar,contorller:NetWorkController)
 		{
@@ -95,7 +125,7 @@ package com.lele.Manager
 					_currentMapDoc.SetWeather(Weather.RAIN,strength);
 					break;
 				case "sun":
-					_currentMapDoc.SetWeather(Weather.SUN,0);
+					_currentMapDoc.SetWeather(Weather.SUN,strength);
 					break;
 			}
 		}
